@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Temel yardımcı fonksiyonlar
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(data) {
+      return isAuthenticated() && data.userId == request.auth.uid;
+    }
+    
+    // Aile bütçesi kontrol fonksiyonları
+    function isBudgetMember(budgetData) {
+      let userEmail = request.auth.token.email;
+      return userEmail in budgetData.memberEmails;
+    }
+    
+    function isBudgetAdmin(budgetData) {
+      let userEmail = request.auth.token.email;
+      return budgetData.members.hasAny([{
+        email: userEmail,
+        role: 'admin'
+      }]);
+    }
+
+    // Users koleksiyonu kuralları
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && userId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data);
+    }
+
+    // Transactions koleksiyonu kuralları
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && isOwner(resource.data);
+      allow create: if isAuthenticated() && isOwner(request.resource.data);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+    
+    // Budgets koleksiyonu kuralları
+    match /budgets/{budgetId} {
+      allow read: if isAuthenticated() && isOwner(resource.data);
+      allow create: if isAuthenticated() && isOwner(request.resource.data);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+    
+    // Aile bütçesi kuralları
+    match /familyBudgets/{budgetId} {
+      allow read: if isAuthenticated() && isBudgetMember(resource.data);
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && isBudgetMember(resource.data);
+      allow delete: if isAuthenticated() && isBudgetAdmin(resource.data);
+    }
+    
+    // Bütçe davetleri kuralları
+    match /budgetInvitations/{invitationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.email == request.auth.token.email ||
+        resource.data.invitedBy == request.auth.token.email
+      );
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated() && (
+        resource.data.email == request.auth.token.email ||
+        resource.data.invitedBy == request.auth.token.email
+      );
+    }
+    
+    // Financial Goals koleksiyonu kuralları
+    match /financial_goals/{goalId} {
+      allow read: if isAuthenticated() && isOwner(resource.data);
+      allow create: if isAuthenticated() && isOwner(request.resource.data);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+    
+    // Recurring Transactions koleksiyonu kuralları
+    match /recurring_transactions/{recurringId} {
+      allow read: if isAuthenticated() && isOwner(resource.data);
+      allow create: if isAuthenticated() && isOwner(request.resource.data);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+    
+    // Kategori limitleri koleksiyonu kuralları
+    match /categoryLimits/{limitId} {
+      allow read: if isAuthenticated() && isOwner(resource.data);
+      allow create: if isAuthenticated() && isOwner(request.resource.data);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+    
+    // Bildirim ayarları koleksiyonu kuralları
+    match /notificationSettings/{settingId} {
+      allow read: if isAuthenticated() && isOwner(resource.data);
+      allow create: if isAuthenticated() && isOwner(request.resource.data);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+  }
+} 

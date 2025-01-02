@@ -6,6 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8B4D4A112D26825F0059660F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4D4A102D26825F0059660F /* FirebaseStorage */; };
+		8B4D4B6C2D26B4B60059660F /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4D4B6B2D26B4B60059660F /* CSV */; };
+		8BC724EE2D26E358006769A1 /* ButceStoreKit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8BC724ED2D26E358006769A1 /* ButceStoreKit.storekit */; };
+		8BC725212D272AFB006769A1 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 8BC725202D272AFB006769A1 /* FirebaseFunctions */; };
+		8BE6AF532D25A8DE0075B469 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF522D25A8DE0075B469 /* FirebaseAnalytics */; };
+		8BE6AF552D25A8DE0075B469 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF542D25A8DE0075B469 /* FirebaseAuth */; };
+		8BE6AF572D25A8DE0075B469 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF562D25A8DE0075B469 /* FirebaseCore */; };
+		8BE6AF592D25A8DE0075B469 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF582D25A8DE0075B469 /* FirebaseFirestore */; };
+		8BE6B2712D266D8F0075B469 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6B2702D266D8F0075B469 /* GoogleSignIn */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		8B917BD02D2595450000EE20 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,11 +39,37 @@
 		8B917BBF2D2595440000EE20 /* Butcem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Butcem.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B917BCF2D2595450000EE20 /* ButcemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ButcemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B917BD92D2595450000EE20 /* ButcemUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ButcemUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BC724ED2D26E358006769A1 /* ButceStoreKit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = ButceStoreKit.storekit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8BE6B0752D25B78B0075B469 /* Exceptions for "Butcem" folder in "Butcem" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Butcem/Info.plist,
+				Butcem/Views/Budget/Components/.swift,
+			);
+			target = 8B917BBE2D2595440000EE20 /* Butcem */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		8BE6B0762D25B78B0075B469 /* Exceptions for "Butcem" folder in "Compile Sources" phase from "Butcem" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 8B917BBB2D2595440000EE20 /* Sources */;
+			membershipExceptions = (
+				Butcem/Views/Budget/Components/.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8B917BC12D2595440000EE20 /* Butcem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8BE6B0752D25B78B0075B469 /* Exceptions for "Butcem" folder in "Butcem" target */,
+				8BE6B0762D25B78B0075B469 /* Exceptions for "Butcem" folder in "Compile Sources" phase from "Butcem" target */,
+			);
 			path = Butcem;
 			sourceTree = "<group>";
 		};
@@ -52,6 +90,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BE6B2712D266D8F0075B469 /* GoogleSignIn in Frameworks */,
+				8BE6AF532D25A8DE0075B469 /* FirebaseAnalytics in Frameworks */,
+				8BE6AF592D25A8DE0075B469 /* FirebaseFirestore in Frameworks */,
+				8BC725212D272AFB006769A1 /* FirebaseFunctions in Frameworks */,
+				8BE6AF572D25A8DE0075B469 /* FirebaseCore in Frameworks */,
+				8BE6AF552D25A8DE0075B469 /* FirebaseAuth in Frameworks */,
+				8B4D4A112D26825F0059660F /* FirebaseStorage in Frameworks */,
+				8B4D4B6C2D26B4B60059660F /* CSV in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +121,7 @@
 		8B917BB62D2595440000EE20 = {
 			isa = PBXGroup;
 			children = (
+				8BC724ED2D26E358006769A1 /* ButceStoreKit.storekit */,
 				8B917BC12D2595440000EE20 /* Butcem */,
 				8B917BD22D2595450000EE20 /* ButcemTests */,
 				8B917BDC2D2595450000EE20 /* ButcemUITests */,
@@ -111,8 +158,6 @@
 				8B917BC12D2595440000EE20 /* Butcem */,
 			);
 			name = Butcem;
-			packageProductDependencies = (
-			);
 			productName = Butcem;
 			productReference = 8B917BBF2D2595440000EE20 /* Butcem.app */;
 			productType = "com.apple.product-type.application";
@@ -134,8 +179,6 @@
 				8B917BD22D2595450000EE20 /* ButcemTests */,
 			);
 			name = ButcemTests;
-			packageProductDependencies = (
-			);
 			productName = ButcemTests;
 			productReference = 8B917BCF2D2595450000EE20 /* ButcemTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -157,8 +200,6 @@
 				8B917BDC2D2595450000EE20 /* ButcemUITests */,
 			);
 			name = ButcemUITests;
-			packageProductDependencies = (
-			);
 			productName = ButcemUITests;
 			productReference = 8B917BD92D2595450000EE20 /* ButcemUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -195,6 +236,11 @@
 			);
 			mainGroup = 8B917BB62D2595440000EE20;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				8BE6B26F2D266D8F0075B469 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				8B4D4B6A2D26B4B60059660F /* XCRemoteSwiftPackageReference "CSV.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B917BC02D2595440000EE20 /* Products */;
 			projectDirPath = "";
@@ -212,6 +258,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BC724EE2D26E358006769A1 /* ButceStoreKit.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,13 +440,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = butcem/Butcem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Butcem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"butcem/Preview Content\"";
 				DEVELOPMENT_TEAM = JF8LK8FT56;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Butcem/Butcem/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Butcem;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -411,9 +461,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.app.Butcem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -422,13 +476,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = butcem/Butcem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Butcem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"butcem/Preview Content\"";
 				DEVELOPMENT_TEAM = JF8LK8FT56;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Butcem/Butcem/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Butcem;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -440,9 +497,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.app.Butcem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -558,6 +619,76 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8B4D4B6A2D26B4B60059660F /* XCRemoteSwiftPackageReference "CSV.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yaslab/CSV.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.2;
+			};
+		};
+		8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.6.0;
+			};
+		};
+		8BE6B26F2D266D8F0075B469 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B4D4A102D26825F0059660F /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		8B4D4B6B2D26B4B60059660F /* CSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4D4B6A2D26B4B60059660F /* XCRemoteSwiftPackageReference "CSV.swift" */;
+			productName = CSV;
+		};
+		8BC725202D272AFB006769A1 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		8BE6AF522D25A8DE0075B469 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		8BE6AF542D25A8DE0075B469 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		8BE6AF562D25A8DE0075B469 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		8BE6AF582D25A8DE0075B469 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		8BE6B2702D266D8F0075B469 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6B26F2D266D8F0075B469 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8B917BB72D2595440000EE20 /* Project object */;
 }
