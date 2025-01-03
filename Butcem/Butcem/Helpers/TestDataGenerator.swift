@@ -195,7 +195,7 @@ class TestDataGenerator {
             .giyim: ["Kıyafet", "Ayakkabı", "Aksesuar"],
             .egitim: ["Kurs ödemesi", "Kitap", "Kırtasiye"],
             .eglence: ["Sinema", "Tiyatro", "Konser", "Cafe"],
-            .diger: ["Çeşitli harcamalar", "Diğer"],
+			.digerGider: ["Çeşitli harcamalar", "Diğer"],
             .maas: ["Maaş ödemesi", "Ek ödeme"],
             .kira: ["Kira geliri"],
             .faiz: ["Faiz geliri", "Temettü"],

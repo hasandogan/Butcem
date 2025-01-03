@@ -2,58 +2,52 @@ import SwiftUI
 
 struct AddTransactionView: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject private var viewModel = AddTransactionViewModel()
+    @StateObject private var viewModel: AddTransactionViewModel
+    let initialType: TransactionType
+    
+    init(initialType: TransactionType) {
+        self.initialType = initialType
+        _viewModel = StateObject(wrappedValue: AddTransactionViewModel(type: initialType))
+    }
     
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    Picker("İşlem Tipi", selection: $viewModel.type) {
-                        ForEach([TransactionType.income, .expense], id: \.self) { type in
-                            Text(type.rawValue).tag(type)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
+                // Tutar
+                Section(header: Text("Tutar")) {
+                    TextField("0.00", value: $viewModel.amount, format: .currency(code: "TRY"))
+                        .keyboardType(.decimalPad)
                 }
                 
-                Section {
-                    HStack {
-                        Text("₺")
-                            .foregroundColor(.secondary)
-                        TextField("0", value: $viewModel.amount, format: .number)
-                            .keyboardType(.decimalPad)
-                    }
-                    
+                // Kategori
+                Section(header: Text("Kategori")) {
                     Picker("Kategori", selection: $viewModel.category) {
                         ForEach(viewModel.availableCategories, id: \.self) { category in
                             Label(
                                 category.rawValue,
                                 systemImage: category.icon
-                            ).tag(category)
+                            )
+                            .foregroundColor(category.color)
+                            .tag(category)
                         }
                     }
-                    
-                    DatePicker("Tarih", selection: $viewModel.date, displayedComponents: .date)
-                    
-                    TextField("Not", text: $viewModel.note)
                 }
                 
-                Section {
-                    Button(action: saveTransaction) {
-                        HStack {
-                            Spacer()
-                            if viewModel.isLoading {
-                                ProgressView()
-                            } else {
-                                Text("Kaydet")
-                            }
-                            Spacer()
-                        }
-                    }
-                    .disabled(viewModel.isLoading || !viewModel.isValid)
+                // Tarih
+                Section(header: Text("Tarih")) {
+                    DatePicker(
+                        "Tarih",
+                        selection: $viewModel.date,
+                        displayedComponents: [.date]
+                    )
+                }
+                
+                // Not
+                Section(header: Text("Not")) {
+                    TextField("Not ekle", text: $viewModel.note)
                 }
             }
-            .navigationTitle("İşlem Ekle")
+            .navigationTitle(initialType == .income ? "Gelir Ekle" : "Gider Ekle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -61,24 +55,17 @@ struct AddTransactionView: View {
                         dismiss()
                     }
                 }
-            }
-            .alert("Hata", isPresented: Binding(
-                get: { viewModel.errorMessage != nil },
-                set: { if !$0 { viewModel.errorMessage = nil } }
-            )) {
-                Button("Tamam", role: .cancel) {}
-            } message: {
-                if let error = viewModel.errorMessage {
-                    Text(error)
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Kaydet") {
+                        Task {
+                            if await viewModel.saveTransaction() {
+                                dismiss()
+                            }
+                        }
+                    }
+                    .disabled(!viewModel.isValid)
                 }
-            }
-        }
-    }
-    
-    private func saveTransaction() {
-        Task {
-            if await viewModel.saveTransaction() {
-                dismiss()
             }
         }
     }

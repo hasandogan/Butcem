@@ -255,7 +255,7 @@ struct UpdateProgressView: View {
             Form {
                 Section {
                     HStack {
-                        Text("₺")
+                        Text("")
                         TextField("Mevcut Birikim", value: $currentAmount, format: .number)
                             .keyboardType(.decimalPad)
                     }

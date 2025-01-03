@@ -58,6 +58,18 @@ struct MainTabView: View {
 				Label("Analiz", systemImage: "chart.bar.fill")
 			}
 			
+			
+			NavigationView {
+				if subscriptionManager.canAccessPremiumFeatures {
+					ExportView()
+				} else {
+					PremiumView()
+				}
+			}
+			.navigationViewStyle(StackNavigationViewStyle())
+			.tabItem {
+				Label("Çıktılar", systemImage: "square.and.arrow.up.circle.fill")
+			}
 			NavigationView {
 				SettingsView()
 			}

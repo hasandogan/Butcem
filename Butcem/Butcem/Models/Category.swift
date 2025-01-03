@@ -10,30 +10,30 @@ enum Category: String, CaseIterable, Codable {
     case ikramiye = "İkramiye/Prim"
     case emekliMaasi = "Emekli Maaşı"
     case serbest = "Serbest Meslek"
-    case diger = "Diğer Gelir"
+    case digerGelir = "Diğer Gelir"
     
     // Gider Kategorileri
     case market = "Market"
     case ulasim = "Ulaşım"
     case faturalar = "Faturalar"
-    case kiraGider = "Kira"
+    case kiraGider = "Kira Gideri"
     case giyim = "Giyim"
     case eglence = "Eğlence"
     case saglik = "Sağlık"
     case egitim = "Eğitim"
-    case restoran = "Restoran/Cafe"
+    case restoran = "Restoran"
     case spor = "Spor"
     case teknoloji = "Teknoloji"
     case tatil = "Tatil"
-    case bakim = "Bakım/Kozmetik"
-    case hediyelik = "Hediyeler"
-    case ev = "Ev Eşyaları"
+    case bakim = "Bakım"
+    case hediyelik = "Hediyelik"
+    case ev = "Ev"
     case sigorta = "Sigorta"
     case aidat = "Aidat"
     case digerGider = "Diğer Gider"
     
     static var incomeCategories: [Category] {
-        [.maas, .kira, .yatirim, .faiz, .ikramiye, .emekliMaasi, .serbest, .diger]
+        [.maas, .kira, .yatirim, .faiz, .ikramiye, .emekliMaasi, .serbest, .digerGelir]
     }
     
     static var expenseCategories: [Category] {
@@ -51,7 +51,7 @@ enum Category: String, CaseIterable, Codable {
         case .ikramiye: return "gift"
         case .emekliMaasi: return "person.crop.circle"
         case .serbest: return "briefcase"
-        case .diger: return "plus.circle"
+        case .digerGelir: return "plus.circle"
             
         case .market: return "cart"
         case .ulasim: return "car"
@@ -84,7 +84,7 @@ enum Category: String, CaseIterable, Codable {
         case .ikramiye: return .indigo
         case .emekliMaasi: return .blue
         case .serbest: return .purple
-        case .diger: return .gray
+        case .digerGelir: return .gray
             
         // Gider Kategorileri
         case .market: return .blue

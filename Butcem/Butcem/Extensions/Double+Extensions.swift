@@ -6,7 +6,7 @@ extension Double {
         formatter.numberStyle = .currency
         formatter.currencyCode = "TRY"
         formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: NSNumber(value: self)) ?? "₺0,00"
+        return formatter.string(from: NSNumber(value: self)) ?? ""
     }
     
     func percentFormat() -> String {
@@ -15,6 +15,6 @@ extension Double {
         formatter.minimumFractionDigits = 1
         formatter.maximumFractionDigits = 1
         formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: NSNumber(value: self / 100)) ?? "%0,0"
+        return formatter.string(from: NSNumber(value: self / 100)) ?? ""
     }
 } 

@@ -32,8 +32,8 @@ struct SetBudgetView: View {
             Form {
                 Section(header: Text("Toplam Bütçe")) {
                     HStack {
-                        Text("₺")
-                        TextField("0", value: $totalBudget, format: .number)
+                        Text("")
+                        TextField("", value: $totalBudget, format: .number)
                             .keyboardType(.decimalPad)
                     }
                 }

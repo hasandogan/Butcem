@@ -12,6 +12,14 @@ class AuthManager: ObservableObject {
     var currentUserId: String? {
         Auth.auth().currentUser?.uid
     }
+	
+	var currentUserName: String? {
+		Auth.auth().currentUser?.displayName
+	}
+	
+	var currentEmail: String? {
+		Auth.auth().currentUser?.email
+	}
     
     private init() {
         setupAuthStateListener()

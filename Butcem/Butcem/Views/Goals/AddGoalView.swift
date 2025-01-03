@@ -24,13 +24,13 @@ struct AddGoalView: View {
                     TextField("Hedef Başlığı", text: $title)
                     
                     HStack {
-                        Text("₺")
+                        Text("")
                         TextField("Hedef Tutar", value: $targetAmount, format: .number)
                             .keyboardType(.decimalPad)
                     }
                     
                     HStack {
-                        Text("₺")
+                        Text("")
                         TextField("Mevcut Birikim", value: $currentAmount, format: .number)
                             .keyboardType(.decimalPad)
                     }

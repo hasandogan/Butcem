@@ -10,7 +10,7 @@ extension View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "TRY"
         formatter.maximumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "₺0.00"
+        return formatter.string(from: NSNumber(value: value)) ?? ""
     }
     
     func percentFormat(_ value: Double) -> String {

@@ -6,7 +6,7 @@ struct FamilyBudget: Identifiable, Codable {
     let creatorId: String
     var name: String
     var members: [FamilyMember]
-    var categoryLimits: [CategoryBudget]
+    var categoryLimits: [FamilyCategoryBudget]
     var totalBudget: Double
     let createdAt: Date?
     var month: Date
@@ -16,20 +16,21 @@ struct FamilyBudget: Identifiable, Codable {
         id ?? UUID().uuidString
     }
     
-    struct FamilyMember: Codable, Identifiable {
-        var id: String
+    struct FamilyMember: Identifiable, Codable {
+        let id: String
         var name: String
-        var email: String
-        var role: MemberRole
+        let email: String
+        let role: MemberRole
         var spentAmount: Double
         
-        enum MemberRole: String, Codable {
-            case admin
-            case member
-            
-            var canEditBudget: Bool {
-                self == .admin
-            }
+        func asDictionary() -> [String: Any] {
+            [
+                "id": id,
+                "name": name,
+                "email": email,
+                "role": role.rawValue,
+                "spentAmount": spentAmount
+            ]
         }
     }
     
@@ -48,27 +49,25 @@ struct FamilyBudget: Identifiable, Codable {
     
     // Firestore'a kaydetmek için Dictionary'e çevir
     func asDictionary() -> [String: Any] {
-        [
+        var dict: [String: Any] = [
             "creatorId": creatorId,
             "name": name,
-            "members": members.map { member in [
-                "id": member.id,
-                "name": member.name,
-                "email": member.email,
-                "role": member.role.rawValue,
-                "spentAmount": member.spentAmount
-            ]},
-            "categoryLimits": categoryLimits.map { limit in [
-                "id": limit.id,
-                "category": limit.category.rawValue,
-                "limit": limit.limit,
-                "spent": limit.spent
-            ]},
             "totalBudget": totalBudget,
-            "createdAt": FieldValue.serverTimestamp(),
+            "spentAmount": spentAmount,
             "month": month,
-            "spentAmount": spentAmount
+            "members": members.map { $0.asDictionary() },
+            "categoryLimits": categoryLimits.map { $0.asDictionary() }
         ]
+        
+        if let id = id {
+            dict["id"] = id
+        }
+        
+        if let createdAt = createdAt {
+            dict["createdAt"] = Timestamp(date: createdAt)
+        }
+        
+        return dict
     }
 }
 
@@ -81,7 +80,7 @@ extension FamilyBudget {
         creatorId = try container.decode(String.self, forKey: .creatorId)
         name = try container.decode(String.self, forKey: .name)
         members = try container.decode([FamilyMember].self, forKey: .members)
-        categoryLimits = try container.decode([CategoryBudget].self, forKey: .categoryLimits)
+        categoryLimits = try container.decode([FamilyCategoryBudget].self, forKey: .categoryLimits)
         totalBudget = try container.decode(Double.self, forKey: .totalBudget)
         
         // Timestamp'i Date'e çevir
@@ -99,4 +98,10 @@ extension FamilyBudget {
         
         spentAmount = try container.decode(Double.self, forKey: .spentAmount)
     }
+}
+
+
+enum MemberRole: String, Codable {
+    case admin = "admin"
+    case member = "member"
 } 

@@ -1,146 +1,101 @@
 import SwiftUI
 
 struct TransactionsView: View {
-    @StateObject private var viewModel = TransactionsViewModel()
-    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
-    @State private var showingFilter = false
-    @State private var showingExport = false
-    @State private var selectedType: TransactionType?
-    @State private var selectedCategory: Category?
-    
-    var body: some View {
-        NavigationView {
-            List {
-                if viewModel.filteredTransactions.isEmpty {
-                    Text("İşlem bulunamadı")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .listRowBackground(Color.clear)
-                } else {
-                    ForEach(viewModel.filteredTransactions) { transaction in
-                        TransactionRow(transaction: transaction) {
-                            Task {
-                                await viewModel.deleteTransaction(transaction)
-                            }
-                        }
-                    }
-                }
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle("Tüm İşlemler")
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarLeading) {
-                    Button {
-                        showingExport.toggle()
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-                
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button {
-                        showingFilter.toggle()
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingFilter) {
-                FilterView(selectedType: $selectedType, selectedCategory: $selectedCategory)
-                    .onChange(of: selectedType) { _ in
-                        viewModel.filterTransactions(type: selectedType, category: selectedCategory)
-                    }
-                    .onChange(of: selectedCategory) { _ in
-                        viewModel.filterTransactions(type: selectedType, category: selectedCategory)
-                    }
-            }
-            .sheet(isPresented: $showingExport) {
-                if subscriptionManager.canAccessPremiumFeatures {
-                    ExportView()
-                } else {
-                    PremiumView()
-                }
-            }
-            .overlay {
-                if viewModel.isLoading {
-                    ProgressView()
-                }
-            }
-            .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil)) {
-                Button("Tamam", role: .cancel) {
-                    viewModel.errorMessage = nil
-                }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
-            }
-        }
-    }
-}
-
-struct FilterView: View {
-	@Environment(\.dismiss) var dismiss
-	@Binding var selectedType: TransactionType?
-	@Binding var selectedCategory: Category?
+	@StateObject private var viewModel = TransactionsViewModel()
+	@ObservedObject private var subscriptionManager = SubscriptionManager.shared
+	@State private var showingFilter = false
+	@State private var selectedType: TransactionType?
+	@State private var selectedCategory: Category?
+	
+	var sortedTransactions: [Transaction] {
+		viewModel.filteredTransactions.sorted { $0.date > $1.date }
+	}
 	
 	var body: some View {
-		NavigationView {
-			Form {
-				Section(header: Text("İşlem Türü")) {
-					Button("Tümü") {
-						selectedType = nil
-						dismiss()
-					}
-					Button("Gelirler") {
-						selectedType = .income
-						dismiss()
-					}
-					Button("Giderler") {
-						selectedType = .expense
-						dismiss()
+		Group {
+			if sortedTransactions.isEmpty {
+				EmptyTransactionsView()
+			} else {
+				List {
+					ForEach(sortedTransactions) { transaction in
+						TransactionRow(transaction: transaction) { 
+							Task {
+								try? await viewModel.deleteTransaction(transaction)
+							}
+						}
+						.swipeActions(edge: .trailing) {
+							Button(role: .destructive) {
+								Task {
+									try? await viewModel.deleteTransaction(transaction)
+								}
+							} label: {
+								Label("Sil", systemImage: "trash")
+							}
+						}
 					}
 				}
-				
-				Section(header: Text("Kategori")) {
-					Button("Tümü") {
+				.listStyle(.plain)
+			}
+		}
+		.navigationTitle("İşlemler")
+		.toolbar {
+			ToolbarItem(placement: .navigationBarTrailing) {
+				Menu {
+					// Tüm işlemler
+					Button {
+						selectedType = nil
 						selectedCategory = nil
-						dismiss()
+						viewModel.filterTransactions(type: nil, category: nil)
+					} label: {
+						Label("Tümü", systemImage: "list.bullet")
 					}
 					
-					if selectedType == .income {
-						ForEach(Category.incomeCategories, id: \.self) { category in
+					Menu("İşlem Tipi") {
+						ForEach(TransactionType.allCases, id: \.self) { type in
 							Button {
-								selectedCategory = category
-								dismiss()
+								selectedType = type
+								viewModel.filterTransactions(type: type, category: selectedCategory)
 							} label: {
-								Label(category.rawValue, systemImage: category.icon)
+								Label(type.rawValue, systemImage: type == .income ? "plus.circle" : "minus.circle")
 							}
 						}
-					} else if selectedType == .expense {
-						ForEach(Category.expenseCategories, id: \.self) { category in
-							Button {
-								selectedCategory = category
-								dismiss()
-							} label: {
-								Label(category.rawValue, systemImage: category.icon)
-							}
-						}
-					} else {
+					}
+					
+					Menu("Kategori") {
 						ForEach(Category.allCases, id: \.self) { category in
 							Button {
 								selectedCategory = category
-								dismiss()
+								viewModel.filterTransactions(type: selectedType, category: category)
 							} label: {
 								Label(category.rawValue, systemImage: category.icon)
 							}
 						}
 					}
+				} label: {
+					Label("Filtrele", systemImage: "line.3.horizontal.decrease.circle")
 				}
 			}
-			.navigationTitle("Filtrele")
-			.navigationBarItems(trailing: Button("Kapat") {
-				dismiss()
-			})
+		}
+		.refreshable {
+			await viewModel.refreshData()
 		}
 	}
-	
+}
+
+// Boş Durum Görünümü
+struct EmptyTransactionsView: View {
+	var body: some View {
+		VStack(spacing: 12) {
+			Image(systemName: "tray")
+				.font(.system(size: 40))
+				.foregroundColor(.secondary)
+			Text("İşlem bulunamadı")
+				.foregroundColor(.secondary)
+		}
+		.frame(maxWidth: .infinity)
+		.padding()
+		.background(Color(.systemBackground))
+		.cornerRadius(12)
+		.padding(.horizontal)
+	}
 }

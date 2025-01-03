@@ -106,9 +106,14 @@ class FirebaseService: DatabaseService {
             .order(by: "date", descending: true)
             .getDocuments()
         
-        return try snapshot.documents.compactMap { document in
-            try document.data(as: Transaction.self)
+        let transactions = try snapshot.documents.compactMap { document in
+            var transaction = try document.data(as: Transaction.self)
+            transaction.id = document.documentID // Döküman ID'sini atayalım
+            return transaction
         }
+        
+        print("Retrieved \(transactions.count) transactions")
+        return transactions
     }
     
     func addTransaction(_ transaction: Transaction) async throws {
@@ -146,14 +151,15 @@ class FirebaseService: DatabaseService {
     }
     
     func deleteTransaction(_ transaction: Transaction) async throws {
-        guard let id = transaction.id else {
-            throw NetworkError.invalidData
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NetworkError.authenticationError
         }
         
-        try await db.collection("transactions").document(id).delete()
+        try await db.collection("transactions")
+            .document(transaction.documentId)
+            .delete()
         
-        // Listener'ı tetiklemek için kısa bir bekleme
-        try await Task.sleep(nanoseconds: 500_000_000) // 0.5 saniye
+        print("Transaction deleted successfully")
     }
     
     // MARK: - Dinleyiciler
@@ -163,46 +169,50 @@ class FirebaseService: DatabaseService {
             return db.collection("transactions").addSnapshotListener { _, _ in }
         }
         
-        return db.collection("transactions")
+        // Varsayılan listener'ı oluştur
+        let defaultQuery = db.collection("transactions")
             .whereField("userId", isEqualTo: userId)
             .order(by: "date", descending: true)
-            .addSnapshotListener { [weak self] querySnapshot, error in
-                guard let documents = querySnapshot?.documents else {
-                    print("Error fetching documents: \(error?.localizedDescription ?? "Unknown error")")
-                    completion([])
-                    return
-                }
-                
+        
+        let listener = defaultQuery.addSnapshotListener { [weak self] _, _ in
+            // Ayarları al ve yeni listener oluştur
+            Task {
                 do {
-                    let transactions = try documents.compactMap { document -> Transaction? in
-                        let data = document.data()
-                        
-                        // Tarihleri düzgün parse et
-                        let timestamp = data["date"] as? Timestamp
-                        let date = timestamp?.dateValue() ?? Date()
-                        
-                        let createdTimestamp = data["createdAt"] as? Timestamp
-                        let createdAt = createdTimestamp?.dateValue()
-                        
-                        // Transaction oluştur
-                        return Transaction(
-                            id: document.documentID,
-                            userId: data["userId"] as? String ?? "",
-                            amount: data["amount"] as? Double ?? 0,
-                            category: Category(rawValue: data["category"] as? String ?? "") ?? .diger,
-                            type: TransactionType(rawValue: data["type"] as? String ?? "") ?? .expense,
-                            date: date,
-                            note: data["note"] as? String,
-                            createdAt: createdAt
-                        )
+                    guard let self = self else { return }
+                    let settings = try await self.getUserSettings() ?? UserSettings(userId: userId)
+                    let billingPeriod = settings.currentBillingPeriod
+                    
+                    // Tarihe göre filtrelenmiş sorgu
+                    let query = self.db.collection("transactions")
+                        .whereField("userId", isEqualTo: userId)
+                        .whereField("date", isGreaterThanOrEqualTo: billingPeriod.startDate)
+                        .whereField("date", isLessThan: billingPeriod.endDate)
+                        .order(by: "date", descending: true)
+                    
+                    // Yeni sorguyu çalıştır
+                    let snapshot = try await query.getDocuments()
+                    let transactions = snapshot.documents.compactMap { document -> Transaction? in
+                        do {
+                            var transaction = try document.data(as: Transaction.self)
+                            transaction.id = document.documentID
+                            return transaction
+                        } catch {
+                            print("Error decoding transaction: \(error)")
+                            return nil
+                        }
                     }
                     
+                    print("Listener received \(transactions.count) transactions for current billing period")
                     completion(transactions)
+                    
                 } catch {
-                    print("Error decoding transactions: \(error)")
+                    print("Error getting user settings: \(error)")
                     completion([])
                 }
             }
+        }
+        
+        return listener
     }
     
     // MARK: - Budget Operations
@@ -847,20 +857,8 @@ class FirebaseService: DatabaseService {
                 spentAmount: 0
             )
             
-            // Davet edilen üyeleri member rolüyle ekle
-            let invitedMembers = budget.members.map { member in
-                print("Processing invited member: \(member.email)")
-                return FamilyBudget.FamilyMember(
-                    id: UUID().uuidString,
-                    name: "",
-                    email: member.email,
-                    role: .member,
-                    spentAmount: 0
-                )
-            }
-            
             // Tüm üyeleri birleştir
-            updatedBudget.members = [currentUser] + invitedMembers
+            updatedBudget.members = [currentUser] + budget.members
             print("Total members after update: \(updatedBudget.members.count)")
             
             // Tüm email'leri array'e ekle
@@ -889,9 +887,6 @@ class FirebaseService: DatabaseService {
                 }
                 
                 print("Family budget created successfully")
-                print("Budget ID: \(updatedBudget.documentId)")
-                print("Members: \(updatedBudget.members.map { $0.email })")
-                print("Member count: \(updatedBudget.members.count)")
                 
             } catch {
                 print("Error creating family budget: \(error.localizedDescription)")
@@ -928,44 +923,12 @@ class FirebaseService: DatabaseService {
     
     // Aile bütçesine işlem ekle
 	
-	func addFamilyTransaction(_ familyTransaction: Transaction, toBudget budget: FamilyBudget) async throws {
-		let budgetRef = db.collection("familyBudgets").document(budget.documentId)
-		
-		try await db.runTransaction { transaction, errorPointer in
-			do {
-				let budgetDoc = try transaction.getDocument(budgetRef)
-				guard var updatedBudget = try? budgetDoc.data(as: FamilyBudget.self) else {
-					throw NetworkError.invalidData
-				}
-				
-				// Toplam harcamayı güncelle
-				if familyTransaction.type == .expense {
-					updatedBudget.spentAmount += familyTransaction.amount
-					
-					// Üyenin harcamasını güncelle
-					if let index = updatedBudget.members.firstIndex(where: { $0.email == Auth.auth().currentUser?.email }) {
-						updatedBudget.members[index].spentAmount += familyTransaction.amount
-					}
-					
-					// Kategori limitini güncelle
-					if let index = updatedBudget.categoryLimits.firstIndex(where: { $0.category == familyTransaction.category }) {
-						updatedBudget.categoryLimits[index].spent += familyTransaction.amount
-					}
-				}
-				
-				let data = updatedBudget.asDictionary()
-				transaction.setData(data, forDocument: budgetRef)
-				return nil
-				
-			} catch {
-				errorPointer?.pointee = error as NSError
-				return nil
-			}
-		}
-	}
+	
     
     // Aile bütçesini güncelle
     func updateFamilyBudget(_ budget: FamilyBudget) async throws {
+        // Admin kontrolü yerine üyelik kontrolü yap
+        
         guard let budgetId = budget.id else {
             throw NetworkError.invalidData
         }
@@ -973,9 +936,41 @@ class FirebaseService: DatabaseService {
         var data = budget.asDictionary()
         data["memberEmails"] = budget.members.map { $0.email }
         
+        // Admin olmayan üyeler sadece spentAmount ve categoryLimits.spent'i güncelleyebilir
+        if !isBudgetAdmin(budget) {
+            if let existingBudget = try? await db.collection("familyBudgets")
+                .document(budgetId)
+                .getDocument()
+                .data(as: FamilyBudget.self) {
+                
+                // Sadece harcama ile ilgili alanları güncelle
+                data["spentAmount"] = budget.spentAmount
+                data["categoryLimits"] = existingBudget.categoryLimits.map { limit in
+                    if let updatedLimit = budget.categoryLimits.first(where: { $0.category == limit.category }) {
+                        var limitData = limit.asDictionary()
+                        limitData["spent"] = updatedLimit.spent
+                        return limitData
+                    }
+                    return limit.asDictionary()
+                }
+                // Diğer alanları mevcut değerlerle koru
+                data["name"] = existingBudget.name
+                data["totalBudget"] = existingBudget.totalBudget
+                data["members"] = existingBudget.members.map { $0.asDictionary() }
+            }
+        }
+        
         try await db.collection("familyBudgets")
             .document(budgetId)
             .setData(data)
+    }
+    
+    // Admin kontrolü yardımcı fonksiyonu
+    private func isBudgetAdmin(_ budget: FamilyBudget) -> Bool {
+        guard let currentUserEmail = Auth.auth().currentUser?.email else { return false }
+        return budget.members.contains { member in
+            member.email == currentUserEmail && member.role == .admin
+        }
     }
     
     // Aile bütçesini sil
@@ -987,17 +982,17 @@ class FirebaseService: DatabaseService {
         print("Starting to delete budget: \(budgetId)")
         
         do {
-            // Önce işlemleri sil
-            let transactionsSnapshot = try await db.collection("familyBudgets")
-                .document(budgetId)
-                .collection("transactions")
-                .getDocuments()
+           
+			// Sonra davetleri sil
+			let transactionSnapshot = try await db.collection("familyTransactions")
+				.whereField("budgetId", isEqualTo: budgetId)
+				.getDocuments()
+			
+			for doc in transactionSnapshot.documents {
+				try await doc.reference.delete()
+			}
             
-            for doc in transactionsSnapshot.documents {
-                try await doc.reference.delete()
-            }
-            
-            print("Deleted \(transactionsSnapshot.documents.count) transactions")
+            print("Deleted \(transactionSnapshot.documents.count) transactions")
             
             // Sonra davetleri sil
             let invitationsSnapshot = try await db.collection("budgetInvitations")
@@ -1022,6 +1017,125 @@ class FirebaseService: DatabaseService {
             throw error
         }
     }
+    
+    private func checkAdminPermission(_ budget: FamilyBudget) throws {
+        guard let currentUserEmail = Auth.auth().currentUser?.email else {
+            throw NetworkError.authenticationError
+        }
+        
+        guard budget.members.contains(where: { 
+            $0.email == currentUserEmail && $0.role == .admin 
+        }) else {
+            throw NetworkError.authenticationError
+        }
+    }
+    
+    func removeMember(_ email: String, from budget: FamilyBudget) async throws {
+        try checkAdminPermission(budget)
+        var updatedBudget = budget
+        updatedBudget.members.removeAll { $0.email == email }
+        try await updateFamilyBudget(updatedBudget)
+    }
+    
+    // Kullanıcı ayarlarını kaydet/güncelle
+    func saveUserSettings(_ settings: UserSettings) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NetworkError.authenticationError
+        }
+        
+        var data = settings.asDictionary()
+        data["updatedAt"] = FieldValue.serverTimestamp()
+        
+        try await db.collection("userSettings")
+            .document(userId)
+            .setData(data, merge: true)
+    }
+    
+    // Kullanıcı ayarlarını getir
+    func getUserSettings() async throws -> UserSettings? {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NetworkError.authenticationError
+        }
+        
+        let document = try await db.collection("userSettings")
+            .document(userId)
+            .getDocument()
+        
+        return try? document.data(as: UserSettings.self)
+    }
+    
+    func getFamilyTransactions(budgetId: String) async throws -> [FamilyTransaction] {
+        let snapshot = try await db.collection("familyBudgets")
+            .document(budgetId)
+            .collection("transactions")
+            .order(by: "date", descending: true)
+            .getDocuments()
+        
+        print("Getting transactions for budget: \(budgetId)")
+        
+        return try snapshot.documents.compactMap { document in
+            var transaction = try document.data(as: FamilyTransaction.self)
+            transaction.id = document.documentID
+            return transaction
+        }
+    }
+    
+    func addFamilyTransaction(_ transaction: FamilyTransaction, toBudget budget: FamilyBudget) async throws {
+        guard let budgetId = budget.id else {
+            throw NetworkError.invalidData
+        }
+        
+        var updatedBudget = budget
+        
+        // İşlemi familyBudgets/budgetId/transactions koleksiyonuna ekle
+        try await db.collection("familyBudgets")
+            .document(budgetId)
+            .collection("transactions")
+            .document(transaction.documentId)
+            .setData(transaction.asDictionary())
+        
+        // Önce mevcut bütçeyi al (en güncel verileri almak için)
+        let currentBudget = try await db.collection("familyBudgets")
+            .document(budgetId)
+            .getDocument()
+            .data(as: FamilyBudget.self)
+        
+        // Güncel bütçe verilerini kullan
+        updatedBudget = currentBudget ?? budget
+        
+        // Kategori limitini güncelle
+        if let index = updatedBudget.categoryLimits.firstIndex(where: { $0.category == transaction.category }) {
+            updatedBudget.categoryLimits[index].spent += transaction.amount
+        } else {
+            let newLimit = FamilyCategoryBudget(
+                id: UUID().uuidString,
+                category: transaction.category,
+                limit: transaction.amount * 2,
+                spent: transaction.amount
+            )
+            updatedBudget.categoryLimits.append(newLimit)
+        }
+        
+        // Toplam harcamayı güncelle
+        updatedBudget.spentAmount += transaction.amount
+        
+        // Üyenin harcamasını güncelle
+        if let memberIndex = updatedBudget.members.firstIndex(where: { $0.email == transaction.memberEmail }) {
+            updatedBudget.members[memberIndex].spentAmount += transaction.amount
+            print("Updated member spending: \(updatedBudget.members[memberIndex].spentAmount)")
+        } else {
+            print("Member not found: \(transaction.memberEmail)")
+        }
+        
+        // Bütçeyi güncelle
+        try await db.collection("familyBudgets")
+            .document(budgetId)
+            .setData(updatedBudget.asDictionary())
+        
+        print("Transaction added and budget updated successfully")
+    }
+    
+  
 }
 
 // Tek bir listener yönetimi için helper class ekleyelim
@@ -1043,25 +1157,3 @@ class ListenerManager {
         listeners.removeAll()
     }
 }
-
-extension FirebaseService {
-    // Aile bütçesine işlem ekle
-    func addFamilyTransaction(_ transaction: FamilyTransaction, toBudget budget: FamilyBudget) async throws {
-        guard let budgetId = budget.id else {
-            throw NetworkError.invalidData
-        }
-        
-        // İşlemi kaydet
-        let transactionRef = db.collection("familyBudgets")
-            .document(budgetId)
-            .collection("transactions")
-            .document(transaction.documentId)
-        
-        try await transactionRef.setData(transaction.asDictionary())
-        
-        print("Family transaction added successfully")
-        print("Transaction amount: \(transaction.amount)")
-        print("Transaction category: \(transaction.category.rawValue)")
-    }
-}
-

@@ -35,18 +35,35 @@ struct AddFamilyTransactionView: View {
     private func addTransaction() {
         guard let amount = Double(amount) else { return }
         
-        let transaction = FamilyTransaction(
+        let familyTransaction = FamilyTransaction(
             userId: AuthManager.shared.currentUserId ?? "",
             amount: amount,
+            memberName: AuthManager.shared.currentUserName ?? "",
+            memberEmail: AuthManager.shared.currentEmail ?? "",
             category: selectedCategory,
             date: Date(),
             note: note.isEmpty ? nil : note,
             createdAt: Date()
         )
         
+        let personalTransaction = Transaction(
+            userId: AuthManager.shared.currentUserId ?? "",
+            amount: amount,
+            category: selectedCategory.toPersonalCategory(),
+            type: .expense,
+            date: Date(),
+            note: note.isEmpty ? nil : "\(budget.name): \(note ?? "")",
+            createdAt: Date()
+        )
+        
         Task {
-            try? await viewModel.addFamilyTransaction(transaction, toBudget: budget)
-            dismiss()
+            do {
+                try await viewModel.addFamilyTransaction(familyTransaction, toBudget: budget)
+                try await FirebaseService.shared.addTransaction(personalTransaction)
+                dismiss()
+            } catch {
+                print("Transaction error: \(error)")
+            }
         }
     }
 }

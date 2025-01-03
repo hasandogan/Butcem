@@ -5,12 +5,18 @@ struct TransactionRow: View {
     let onDelete: () -> Void
     
     var body: some View {
-        HStack {
+        HStack(alignment: .center, spacing: 12) {
+            // Kategori İkonu
             Image(systemName: transaction.category.icon)
+                .font(.title3)
                 .foregroundColor(transaction.type == .expense ? .red : .green)
+                .frame(width: 24, height: 24)
             
-            VStack(alignment: .leading) {
+            // Orta Kısım
+            VStack(alignment: .leading, spacing: 2) {
                 Text(transaction.category.rawValue)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                 if let note = transaction.note {
                     Text(note)
                         .font(.caption)
@@ -20,24 +26,18 @@ struct TransactionRow: View {
             
             Spacer()
             
-            VStack(alignment: .trailing) {
-                Text(transaction.formattedAmount)
+            // Sağ Kısım
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(transaction.amount.currencyFormat())
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                     .foregroundColor(transaction.type == .expense ? .red : .green)
                 Text(transaction.formattedDate)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.secondary)
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(radius: 2)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label("Sil", systemImage: "trash")
-            }
-        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
     }
 } 

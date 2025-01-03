@@ -12,14 +12,12 @@ service cloud.firestore {
     
     // Aile bütçesi kontrol fonksiyonları
     function isBudgetMember(budgetData) {
-      let userEmail = request.auth.token.email;
-      return userEmail in budgetData.memberEmails;
+      return request.auth.token.email in budgetData.members[].email;
     }
     
     function isBudgetAdmin(budgetData) {
-      let userEmail = request.auth.token.email;
       return budgetData.members.hasAny([{
-        email: userEmail,
+        email: request.auth.token.email,
         role: 'admin'
       }]);
     }
@@ -47,23 +45,37 @@ service cloud.firestore {
     
     // Aile bütçesi kuralları
     match /familyBudgets/{budgetId} {
-      allow read: if isAuthenticated() && isBudgetMember(resource.data);
+      // Okuma: Üye olan herkes okuyabilir
+      allow read: if isAuthenticated() && (
+        isBudgetMember(resource.data)
+      );
+      
+      // Oluşturma: Giriş yapmış herkes oluşturabilir
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && isBudgetMember(resource.data);
-      allow delete: if isAuthenticated() && isBudgetAdmin(resource.data);
+      
+      // Güncelleme: Admin veya oluşturucu güncelleyebilir
+      allow update: if isAuthenticated() && (
+        isBudgetAdmin(resource.data) || 
+        resource.data.creatorId == request.auth.uid
+      );
+      
+      // Silme: Sadece oluşturucu silebilir
+      allow delete: if isAuthenticated() && resource.data.creatorId == request.auth.uid;
+      
+      // Alt koleksiyonlar için kurallar
+      match /transactions/{transactionId} {
+        // Okuma ve yazma: Bütçe üyesi olan herkes
+        allow read, write: if isAuthenticated() && (
+          isBudgetMember(get(/databases/$(database)/documents/familyBudgets/$(budgetId)).data)
+        );
+      }
     }
     
     // Bütçe davetleri kuralları
     match /budgetInvitations/{invitationId} {
-      allow read: if isAuthenticated() && (
-        resource.data.email == request.auth.token.email ||
-        resource.data.invitedBy == request.auth.token.email
-      );
+      allow read: if isAuthenticated();
       allow create: if isAuthenticated();
-      allow delete: if isAuthenticated() && (
-        resource.data.email == request.auth.token.email ||
-        resource.data.invitedBy == request.auth.token.email
-      );
+      allow delete: if isAuthenticated() && resource.data.invitedBy == request.auth.token.email;
     }
     
     // Financial Goals koleksiyonu kuralları
@@ -92,6 +104,11 @@ service cloud.firestore {
       allow read: if isAuthenticated() && isOwner(resource.data);
       allow create: if isAuthenticated() && isOwner(request.resource.data);
       allow update, delete: if isAuthenticated() && isOwner(resource.data);
+    }
+    
+    // UserSettings koleksiyonu için kurallar
+    match /userSettings/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 } 

@@ -3,21 +3,22 @@ import FirebaseAuth
 
 @MainActor
 class AddTransactionViewModel: ObservableObject {
-    @Published var type: TransactionType = .expense
     @Published var amount: Double = 0
-    @Published var category: Category = .diger
+    @Published var category: Category
     @Published var date = Date()
     @Published var note: String = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    let type: TransactionType
+    
+    init(type: TransactionType) {
+        self.type = type
+        self.category = type == .income ? .maas : .market
+    }
+    
     var availableCategories: [Category] {
-        switch type {
-        case .income:
-            return Category.incomeCategories
-        case .expense:
-            return Category.expenseCategories
-        }
+        type == .income ? Category.incomeCategories : Category.expenseCategories
     }
     
     var isValid: Bool {

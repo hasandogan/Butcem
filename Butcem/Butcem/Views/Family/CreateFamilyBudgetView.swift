@@ -98,7 +98,3 @@ struct CreateFamilyBudgetView: View {
         }
     }
 }
-
-#Preview {
-    CreateFamilyBudgetView()
-} 

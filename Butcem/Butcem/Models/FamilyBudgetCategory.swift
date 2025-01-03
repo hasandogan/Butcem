@@ -67,4 +67,19 @@ enum FamilyBudgetCategory: String, CaseIterable, Codable {
         case .diger: return .gray
         }
     }
+    
+    func toPersonalCategory() -> Category {
+        switch self {
+        case .kira: return .kiraGider
+        case .aidat: return .aidat
+        case .elektrik, .su, .dogalgaz, .internet: return .faturalar
+        case .market, .gida: return .market
+        case .yakit, .topluTasima: return .ulasim
+        case .okul, .kurs, .kitap: return .egitim
+        case .saglik, .ilac: return .saglik
+        case .giyim: return .giyim
+        case .eglence: return .eglence
+        case .diger: return .digerGider
+        }
+    }
 } 

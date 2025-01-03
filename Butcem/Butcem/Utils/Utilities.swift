@@ -7,7 +7,7 @@ class Utilities {
         formatter.numberStyle = .currency
         formatter.currencyCode = "TRY"
         formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: NSNumber(value: amount)) ?? "₺0,00"
+        return formatter.string(from: NSNumber(value: amount)) ?? ""
     }
     
     static func hapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {

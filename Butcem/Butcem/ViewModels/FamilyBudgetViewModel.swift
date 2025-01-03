@@ -8,6 +8,7 @@ class FamilyBudgetViewModel: ObservableObject {
     @Published private(set) var currentBudget: FamilyBudget?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published private(set) var transactions: [FamilyTransaction] = []
     
     private var budgetListener: ListenerRegistration?
     
@@ -29,9 +30,23 @@ class FamilyBudgetViewModel: ObservableObject {
                 if let budget = budget {
                     print("Received budget update: \(budget.name)")
                     self?.currentBudget = budget
+                    
+                    // İşlemleri getir
+                    if let budgetId = budget.id {
+                        do {
+                            let transactions = try await FirebaseService.shared.getFamilyTransactions(budgetId: budgetId)
+                            await MainActor.run {
+                                self?.transactions = transactions
+                                print("Loaded \(transactions.count) family transactions")
+                            }
+                        } catch {
+                            print("Error loading transactions: \(error)")
+                        }
+                    }
                 } else {
                     print("No active budget found")
                     self?.currentBudget = nil
+                    self?.transactions = []
                 }
             }
         }
@@ -47,18 +62,32 @@ class FamilyBudgetViewModel: ObservableObject {
         print("Creating budget with name: \(name)")
         print("Members to invite: \(members)")
         
+        guard let currentUserEmail = Auth.auth().currentUser?.email else { return }
+        
+        // Önce mevcut kullanıcıyı admin olarak ekle
+        let currentUser = FamilyBudget.FamilyMember(
+            id: AuthManager.shared.currentUserId ?? "",
+            name: Auth.auth().currentUser?.displayName ?? "",
+            email: currentUserEmail,
+            role: .admin,
+            spentAmount: 0
+        )
+        
+        // Diğer üyeleri member rolüyle ekle
+        let membersList = members.map { email in
+            FamilyBudget.FamilyMember(
+                id: UUID().uuidString,
+                name: "",
+                email: email,
+                role: .member,
+                spentAmount: 0
+            )
+        }
+        
         let familyBudget = FamilyBudget(
             creatorId: AuthManager.shared.currentUserId ?? "",
             name: name,
-            members: members.map { email in
-                FamilyBudget.FamilyMember(
-                    id: UUID().uuidString,
-                    name: "",
-                    email: email,
-                    role: .member,
-                    spentAmount: 0
-                )
-            },
+            members: [currentUser] + membersList, // Tüm üyeleri birleştir
             categoryLimits: [],
             totalBudget: totalBudget,
             createdAt: Date(),
@@ -80,12 +109,12 @@ class FamilyBudgetViewModel: ObservableObject {
         )
     }
     
-    func addTransaction(_ transaction: Transaction) async throws {
+	func addTransaction(_ familyTransaction: FamilyTransaction) async throws {
         guard let budget = currentBudget else { return }
         
         // İşlemi ekle ve bütçeyi güncelle
         try await FirebaseService.shared.addFamilyTransaction(
-            transaction,
+			familyTransaction,
             toBudget: budget
         )
     }
@@ -95,7 +124,9 @@ class FamilyBudgetViewModel: ObservableObject {
         guard let currentUserEmail = Auth.auth().currentUser?.email,
               let budget = currentBudget else { return false }
         
-        return budget.members.first { $0.email == currentUserEmail }?.role == .admin
+        return budget.members.first { member in 
+            member.email == currentUserEmail && member.role == .admin 
+        } != nil
     }
     
     // Bütçeyi güncelle
@@ -168,12 +199,25 @@ class FamilyBudgetViewModel: ObservableObject {
     
     // Aile bütçesine işlem ekle
     func addFamilyTransaction(_ transaction: FamilyTransaction, toBudget budget: FamilyBudget) async throws {
-        guard isAdmin else {
-            throw NetworkError.authenticationError
+        var updatedBudget = budget
+        
+        // İşlemi ekle
+        try await FirebaseService.shared.addFamilyTransaction(transaction, toBudget: budget)
+        
+        // Kategori limitini güncelle
+        if let index = updatedBudget.categoryLimits.firstIndex(where: { $0.category == transaction.category }) {
+            updatedBudget.categoryLimits[index].spent += transaction.amount
+        } else {
+            let newLimit = FamilyCategoryBudget(
+                id: UUID().uuidString,
+                category: transaction.category,
+                limit: transaction.amount * 2,
+                spent: transaction.amount
+            )
+            updatedBudget.categoryLimits.append(newLimit)
         }
         
-        // Bütçeyi güncelle
-        var updatedBudget = budget
+        // Toplam harcamayı güncelle
         updatedBudget.spentAmount += transaction.amount
         
         // Üyenin harcamasını güncelle
@@ -181,20 +225,16 @@ class FamilyBudgetViewModel: ObservableObject {
             updatedBudget.members[index].spentAmount += transaction.amount
         }
         
-        // Kategori limitini güncelle
-        if let index = updatedBudget.categoryLimits.firstIndex(where: { $0.category.rawValue == transaction.category.rawValue }) {
-            updatedBudget.categoryLimits[index].spent += transaction.amount
-        }
-        
-        // Önce işlemi kaydet
-        try await FirebaseService.shared.addFamilyTransaction(transaction, toBudget: budget)
-        
-        // Sonra bütçeyi güncelle
+        // Bütçeyi güncelle
         try await FirebaseService.shared.updateFamilyBudget(updatedBudget)
-        
-        // UI'ı güncelle
-        await MainActor.run {
-            self.currentBudget = updatedBudget
+    }
+    
+    func updateCategoryLimits(_ limits: [FamilyCategoryBudget]) async throws {
+        guard isAdmin, var updatedBudget = currentBudget else {
+            throw NetworkError.authenticationError
         }
+        
+        updatedBudget.categoryLimits = limits
+        try await FirebaseService.shared.updateFamilyBudget(updatedBudget)
     }
 } 
