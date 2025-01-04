@@ -6,7 +6,8 @@ struct ButcemApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var showSplash = true
     @StateObject private var authViewModel = AuthViewModel()
-    
+	let notificationManager = NotificationManager.shared
+
     var body: some Scene {
         WindowGroup {
             ZStack {

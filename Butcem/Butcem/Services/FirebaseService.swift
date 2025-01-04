@@ -32,10 +32,12 @@ protocol DatabaseService {
 // Mevcut servisi protokole uygun hale getirelim
 class FirebaseService: DatabaseService {
     static let shared = FirebaseService()
-    private let db = Firestore.firestore()
+    let db: Firestore
     private let networkMonitor = NetworkMonitor.shared
     
-    private init() {}
+    private init() {
+        db = Firestore.firestore()
+    }
     
     // MARK: - Error Handling
     private func checkConnection() throws {
@@ -1135,7 +1137,163 @@ class FirebaseService: DatabaseService {
         print("Transaction added and budget updated successfully")
     }
     
-  
+    // MARK: - Reminder Operations
+    func addReminder(_ reminder: Reminder) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NetworkError.authenticationError
+        }
+        
+        try await db.collection("reminders")
+            .document(reminder.documentId)
+            .setData(reminder.asDictionary())
+    }
+    
+    func getReminders() async throws -> [Reminder] {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NetworkError.authenticationError
+        }
+        
+        let snapshot = try await db.collection("reminders")
+            .whereField("userId", isEqualTo: userId)
+            .whereField("isActive", isEqualTo: true)
+            .order(by: "dueDate")
+            .getDocuments()
+        
+        return try snapshot.documents.compactMap { document in
+            var reminder = try document.data(as: Reminder.self)
+            reminder.id = document.documentID
+            return reminder
+        }
+    }
+    
+    func updateReminder(_ reminder: Reminder) async throws {
+        guard let id = reminder.id else { return }
+        
+        try await db.collection("reminders")
+            .document(id)
+            .setData(reminder.asDictionary())
+    }
+    
+    func deleteReminder(_ reminder: Reminder) async throws {
+        guard let id = reminder.id else { return }
+        
+        try await db.collection("reminders")
+            .document(id)
+            .delete()
+    }
+    
+    // Bildirim planlaması için yeni fonksiyonlar ekleyelim
+    func scheduleReminder(_ reminder: Reminder) async throws {
+        guard let userId = await AuthManager.shared.currentUserId else { return }
+        
+        // Önce reminder'ı kaydet
+        let reminderRef = db.collection("reminders").document()
+        var reminderData = reminder.toDictionary()
+        reminderData["documentId"] = reminderRef.documentID
+        
+        try await reminderRef.setData(reminderData)
+        
+        // FCM token'ı kontrol et
+        let userDoc = try await db.collection("users").document(userId).getDocument()
+        guard let fcmToken = userDoc.data()?["fcmToken"] as? String else {
+            print("❌ FCM token bulunamadı")
+            return
+        }
+        
+        // Bildirim planlamasını kaydet
+        let notificationData: [String: Any] = [
+            "userId": userId,
+            "fcmToken": fcmToken,
+            "title": reminder.title,
+            "body": "\(reminder.amount.currencyFormat()) tutarındaki \(reminder.type == .income ? "gelir" : "gider") hatırlatıcısı",
+            "scheduledFor": Timestamp(date: reminder.dueDate),
+            "createdAt": Timestamp(date: Date()),
+            "status": "scheduled",
+            "reminderId": reminderRef.documentID,
+            "type": reminder.type.rawValue,
+            "category": reminder.category.rawValue,
+            "amount": reminder.amount,
+            "isProcessed": false
+        ]
+        
+        try await db.collection("scheduledNotifications")
+            .document()
+            .setData(notificationData)
+        
+        print("✅ FCM bildirimi planlandı:")
+        print("Token: \(fcmToken)")
+        print("Başlık: \(reminder.title)")
+        print("Tarih: \(reminder.dueDate)")
+    }
+    
+    // Bildirim durumunu güncelle
+    func updateNotificationStatus(_ notificationId: String, status: String) async throws {
+        try await db.collection("scheduledNotifications")
+            .document(notificationId)
+            .updateData([
+                "status": status,
+                "processedAt": Timestamp(date: Date()),
+                "isProcessed": true
+            ])
+    }
+    
+    // Bildirimi iptal et
+    func cancelNotification(_ notificationId: String) async throws {
+        try await db.collection("scheduledNotifications")
+            .document(notificationId)
+            .updateData([
+                "status": "cancelled",
+                "cancelledAt": Timestamp(date: Date()),
+                "isProcessed": true
+            ])
+    }
+    
+    func checkFirebaseNotifications() async {
+        guard let userId = await AuthManager.shared.currentUserId else { return }
+        
+        do {
+            print("\n📋 Firebase Bildirim Kontrolleri:")
+            
+            // scheduledNotifications koleksiyonunu kontrol et
+            let scheduledSnapshot = try await db.collection("scheduledNotifications")
+                .whereField("userId", isEqualTo: userId)
+                .getDocuments()
+            
+            print("\nPlanlanan Bildirimler (\(scheduledSnapshot.documents.count)):")
+            for doc in scheduledSnapshot.documents {
+                print("-------------------")
+                print("ID: \(doc.documentID)")
+                print("Başlık: \(doc.data()["title"] ?? "")")
+                print("Durum: \(doc.data()["status"] ?? "")")
+                if let dueDate = doc.data()["dueDate"] as? Timestamp {
+                    print("Planlanan: \(dueDate.dateValue())")
+                }
+            }
+            
+            // notifications koleksiyonunu kontrol et
+            let notificationsSnapshot = try await db.collection("notifications")
+                .whereField("userId", isEqualTo: userId)
+                .getDocuments()
+            
+            print("\nBildirimler (\(notificationsSnapshot.documents.count)):")
+            for doc in notificationsSnapshot.documents {
+                print("-------------------")
+                print("ID: \(doc.documentID)")
+                print("Başlık: \(doc.data()["title"] ?? "")")
+                print("Durum: \(doc.data()["status"] ?? "")")
+                if let scheduledFor = doc.data()["scheduledFor"] as? Timestamp {
+                    print("Planlanan: \(scheduledFor.dateValue())")
+                }
+                if let sentAt = doc.data()["sentAt"] as? Timestamp {
+                    print("Gönderilme: \(sentAt.dateValue())")
+                }
+            }
+            print("-------------------\n")
+            
+        } catch {
+            print("❌ Firebase bildirim kontrolü hatası: \(error.localizedDescription)")
+        }
+    }
 }
 
 // Tek bir listener yönetimi için helper class ekleyelim

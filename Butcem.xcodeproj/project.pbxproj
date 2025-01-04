@@ -11,6 +11,7 @@
 		8B4D4B6C2D26B4B60059660F /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4D4B6B2D26B4B60059660F /* CSV */; };
 		8BC724EE2D26E358006769A1 /* ButceStoreKit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8BC724ED2D26E358006769A1 /* ButceStoreKit.storekit */; };
 		8BC725212D272AFB006769A1 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 8BC725202D272AFB006769A1 /* FirebaseFunctions */; };
+		8BCB2C5D2D2878EE00DF7523 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCB2C5C2D2878EE00DF7523 /* FirebaseMessaging */; };
 		8BE6AF532D25A8DE0075B469 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF522D25A8DE0075B469 /* FirebaseAnalytics */; };
 		8BE6AF552D25A8DE0075B469 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF542D25A8DE0075B469 /* FirebaseAuth */; };
 		8BE6AF572D25A8DE0075B469 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE6AF562D25A8DE0075B469 /* FirebaseCore */; };
@@ -90,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BCB2C5D2D2878EE00DF7523 /* FirebaseMessaging in Frameworks */,
 				8BE6B2712D266D8F0075B469 /* GoogleSignIn in Frameworks */,
 				8BE6AF532D25A8DE0075B469 /* FirebaseAnalytics in Frameworks */,
 				8BE6AF592D25A8DE0075B469 /* FirebaseFirestore in Frameworks */,
@@ -662,6 +664,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		8BCB2C5C2D2878EE00DF7523 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BE6AF512D25A8DE0075B469 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		8BE6AF522D25A8DE0075B469 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -105,7 +105,7 @@ struct SetBudgetView: View {
         
         Task {
             if viewModel.budget != nil {
-                await viewModel.updateBudget(amount: totalBudget, categoryLimits: limits)
+                try await viewModel.updateBudget(amount: totalBudget, categoryLimits: limits)
             } else {
                 try? await viewModel.setBudget(amount: totalBudget, categoryLimits: limits)
             }

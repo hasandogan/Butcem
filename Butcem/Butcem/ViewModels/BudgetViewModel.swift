@@ -14,6 +14,8 @@ class BudgetViewModel: ObservableObject {
     private var currentBudgetListener: ListenerRegistration?
     private var pastBudgetsListener: ListenerRegistration?
     
+    private let notificationManager = NotificationManager.shared
+    
     init() {
         setupTransactionObserver()
         setupListeners()
@@ -64,56 +66,31 @@ class BudgetViewModel: ObservableObject {
     }
     
      func checkBudgetLimits() {
-        guard let budget = budget, budget.notificationsEnabled else {
-            print("⚠️ Budget check skipped: budget is nil or notifications disabled")
-            return 
-        }
+        guard let budget = budget else { return }
         
-        print("\n🔍 Checking budget limits:")
-        print("Total budget: \(budget.amount)")
-        print("Total spent: \(budget.spentAmount)")
-        print("Notifications enabled: \(budget.notificationsEnabled)")
-        
-        // Her kategori için kontrol
-        for limit in budget.categoryLimits {
-            print("\n📊 Checking category: \(limit.category.rawValue)")
-            print("Limit: \(limit.limit)")
-            print("Spent: \(limit.spent)")
-            print("Status: \(limit.status)")
-            
-            if limit.spent >= limit.limit {
-                print("🚨 Category limit exceeded!")
-                NotificationManager.shared.scheduleBudgetWarning(
-                    for: limit.category,
-                    spent: limit.spent,
-                    limit: limit.limit,
-                    type: limit.status
-                )
-            } else if limit.spent >= (limit.limit * budget.warningThreshold) {
-                print("⚠️ Category approaching limit!")
-                NotificationManager.shared.scheduleBudgetWarning(
-                    for: limit.category,
-                    spent: limit.spent,
-                    limit: limit.limit,
-                    type: limit.status
-                )
-            }
-        }
+        // Önce eski bildirimleri temizle
+        notificationManager.resetMonthlyNotifications()
         
         // Genel bütçe kontrolü
-        if budget.spentAmount >= budget.amount {
-            print("\n🚨 Total budget exceeded!")
-            NotificationManager.shared.scheduleGeneralBudgetWarning(
-                spent: budget.spentAmount,
-                total: budget.amount,
-                type: budget.status
+        let totalSpent = budget.spentAmount
+        let totalLimit = budget.amount
+        let spentPercentage = (totalSpent / totalLimit) * 100
+        
+        // Genel bütçe uyarısı (%80 ve üzeri için)
+        if spentPercentage >= 80 {
+            notificationManager.scheduleGeneralBudgetWarning(
+                spent: totalSpent,
+                limit: totalLimit,
+                percentage: spentPercentage
             )
-        } else if budget.spentAmount >= (budget.amount * budget.warningThreshold) {
-            print("\n⚠️ Approaching total budget limit!")
-            NotificationManager.shared.scheduleGeneralBudgetWarning(
-                spent: budget.spentAmount,
-                total: budget.amount,
-                type: budget.status
+        }
+        
+        // Kategori bazlı kontroller
+        for limit in budget.categoryLimits {
+            notificationManager.checkBudgetLimits(
+                category: limit.category,
+                spent: limit.spent,
+                limit: limit.limit
             )
         }
     }
@@ -162,17 +139,10 @@ class BudgetViewModel: ObservableObject {
         }
     }
     
-    func updateBudget(amount: Double, categoryLimits: [CategoryBudget]) async {
-        guard let budget = budget else { return }
-        
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            try await FirebaseService.shared.updateBudget(budget, amount: amount, categoryLimits: categoryLimits)
-        } catch {
-            handleError(error)
-        }
+    func updateBudget(amount: Double, categoryLimits: [CategoryBudget]) async throws {
+        try await FirebaseService.shared.setBudget(amount: amount, categoryLimits: categoryLimits)
+        await loadBudget() // Bütçeyi yeniden yükle
+        checkBudgetLimits() // Bildirimleri güncelle
     }
     
     // Kategori bazlı harcama raporu
@@ -362,6 +332,66 @@ class BudgetViewModel: ObservableObject {
                 self.errorMessage = error.localizedDescription
                 self.showAlert = true
             }
+        }
+    }
+    
+    // Bütçe kontrolü ve bildirim gönderme
+    private func checkBudgetLimits(category: Category, spent: Double, limit: Double) {
+        let warningThreshold = limit * 0.8 // %80'ine ulaşıldığında uyarı
+        
+        if spent >= limit {
+            NotificationManager.shared.scheduleBudgetOverspent(
+                category: category,
+                spent: spent,
+                limit: limit
+            )
+        } else if spent >= warningThreshold {
+            NotificationManager.shared.scheduleBudgetWarning(
+                category: category,
+                spent: spent,
+                limit: limit
+            )
+        }
+    }
+    
+    // Yeni işlem eklendiğinde
+    func addTransaction(_ transaction: Transaction) async throws {
+        try await FirebaseService.shared.addTransaction(transaction)
+        await loadBudget() // Bütçeyi yeniden yükle
+        checkBudgetLimits() // Bildirimleri güncelle
+    }
+    
+    // Bütçe yükleme
+    func loadBudget() async {
+        do {
+            let currentBudget = try await FirebaseService.shared.getCurrentBudget()
+            
+            await MainActor.run {
+                self.budget = currentBudget
+                checkBudgetLimits() // Bildirimleri kontrol et
+            }
+            
+            // Geçmiş bütçeleri yükle
+            let pastBudgets = try await FirebaseService.shared.getPastBudgets()
+            await MainActor.run {
+                self.pastBudgets = pastBudgets
+            }
+            
+            await updateCategorySpending()
+            
+        } catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+                self.showAlert = true
+            }
+        }
+    }
+    
+    // Ay değiştiğinde
+    func onMonthChange() {
+        notificationManager.resetMonthlyNotifications() // Eski bildirimleri temizle
+        Task {
+            await loadBudget() // Yeni ayın bütçesini yükle
         }
     }
 }

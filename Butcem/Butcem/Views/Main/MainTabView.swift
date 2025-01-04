@@ -51,7 +51,23 @@ struct MainTabView: View {
 			}
 			
 			NavigationView {
-				AnalyticsView()
+				if subscriptionManager.canAccessPremiumFeatures {
+				RemindersView()
+				} else {
+					PremiumView()
+				}
+			}
+			.navigationViewStyle(StackNavigationViewStyle())
+			.tabItem {
+				Label("Hatırlatıcı", systemImage: "bell.fill")
+			}
+			
+			NavigationView {
+				if subscriptionManager.canAccessPremiumFeatures {
+					AnalyticsView()
+				} else {
+					PremiumView()
+				}
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
