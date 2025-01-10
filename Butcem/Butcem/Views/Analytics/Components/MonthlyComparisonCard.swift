@@ -7,24 +7,24 @@ struct MonthlyComparisonCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Aylık Karşılaştırma")
+			Text("Aylık Karşılaştırma".localized)
                 .font(.headline)
             
             if comparisons.isEmpty {
-                Text("Henüz veri bulunmuyor")
+				Text("Henüz veri bulunmuyor".localized)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {
                 Chart(comparisons) { comparison in
                     BarMark(
-                        x: .value("Ay", comparison.month, unit: .month),
-                        y: .value("Tutar", comparison.expense)
+						x: .value("Ay".localized, comparison.month, unit: .month),
+						y: .value("Tutar".localized, comparison.expense)
                     )
                     .foregroundStyle(.red)
                     
                     BarMark(
-                        x: .value("Ay", comparison.month, unit: .month),
-                        y: .value("Tutar", comparison.income)
+						x: .value("Ay".localized, comparison.month, unit: .month),
+						y: .value("Tutar".localized, comparison.income)
                     )
                     .foregroundStyle(.green)
                 }
@@ -32,12 +32,12 @@ struct MonthlyComparisonCard: View {
                 
                 // Açıklama
                 HStack {
-                    Label("Gelir", systemImage: "circle.fill")
+					Label("Gelir".localized, systemImage: "circle.fill")
                         .foregroundColor(.green)
                     
                     Spacer()
                     
-                    Label("Gider", systemImage: "circle.fill")
+					Label("Gider".localized, systemImage: "circle.fill")
                         .foregroundColor(.red)
                 }
                 .font(.caption)

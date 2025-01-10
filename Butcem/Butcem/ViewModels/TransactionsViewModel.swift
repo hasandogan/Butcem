@@ -26,7 +26,7 @@ class TransactionsViewModel: ObservableObject {
     private func setupFirebaseListener() {
         transactionListener?.remove()
         
-        guard let userId = Auth.auth().currentUser?.uid else { return }
+		let userId = AuthManager.shared.currentUserId
         
         transactionListener = FirebaseService.shared.addTransactionListener { [weak self] transactions in
             guard let self = self else { return }
@@ -64,7 +64,7 @@ class TransactionsViewModel: ObservableObject {
         
         do {
             // Önce kullanıcı ayarlarını al
-            let settings = try await FirebaseService.shared.getUserSettings() ?? UserSettings(userId: Auth.auth().currentUser?.uid ?? "")
+            let settings = try await FirebaseService.shared.getUserSettings() ?? UserSettings(userId: AuthManager.shared.currentUserId)
             let billingPeriod = settings.currentBillingPeriod
             
             // Tüm işlemleri getir ve hesap kesim dönemine göre filtrele
@@ -88,37 +88,5 @@ class TransactionsViewModel: ObservableObject {
     
     func deleteTransaction(_ transaction: Transaction) async throws {
         try await FirebaseService.shared.deleteTransaction(transaction)
-    }
-    
-    func exportTransactions(format: ExportFormat, 
-                          dateRange: ExportView.DateRange,
-                          startDate: Date,
-                          endDate: Date) -> URL? {
-        guard SubscriptionManager.shared.canAccessPremiumFeatures else {
-            errorMessage = "Bu özellik sadece Premium üyelere açıktır"
-            return nil
-        }
-        
-        // Tarihe göre filtreleme
-        let filteredTransactions = transactions.filter { transaction in
-            switch dateRange {
-            case .allTime:
-                return true
-            case .thisMonth, .lastMonth, .custom:
-                return transaction.date >= startDate && transaction.date <= endDate
-            }
-        }
-        
-        print("Exporting \(filteredTransactions.count) transactions in \(format) format")
-        let url = ExportManager.shared.exportTransactions(filteredTransactions, format: format)
-        
-        if let url = url {
-            print("Export successful: \(url.path)")
-        } else {
-            print("Export failed")
-            errorMessage = "Dışa aktarma işlemi başarısız oldu"
-        }
-        
-        return url
     }
 } 

@@ -6,9 +6,10 @@ enum NetworkError: LocalizedError {
 	case serverError(String)
 	case decodingError
 	case encodingError
-	case invalidData
+	case invalidData(String)
 	case unknown
 	case noConnection
+	case notFound(String)
 	
 	var errorDescription: String? {
 		switch self {
@@ -22,12 +23,15 @@ enum NetworkError: LocalizedError {
 			return "Veri işlenirken bir hata oluştu."
 		case .encodingError:
 			return "Veri gönderilirken bir hata oluştu."
-		case .invalidData:
-			return "Geçersiz veri."
+		case .invalidData(let message):
+			return message
 		case .unknown:
 			return "Bilinmeyen bir hata oluştu."
 		case .noConnection:
 			return "İnternet bağlantısı yok"
+		case .notFound(let message):
+			return message
 		}
+		
 	}
 }

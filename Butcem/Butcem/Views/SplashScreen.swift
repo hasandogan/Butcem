@@ -7,12 +7,10 @@ struct SplashScreen: View {
     @State private var rotation = -30.0
     @State private var yOffset: CGFloat = 300
     @State private var isPulsing = false
-    @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
         if isActive {
             ContentView()
-                .environmentObject(authViewModel)
         } else {
             ZStack {
                 // Gradient Arka Plan
@@ -63,13 +61,13 @@ struct SplashScreen: View {
                     
                     VStack(spacing: 15) {
                         // Başlık
-                        Text("Bütçem")
+						Text("Bütçem".localized)
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
                         
                         // Alt Başlık
-                        Text("Finansal hedeflerinize ulaşmanın\nen kolay yolu")
+						Text("Finansal hedeflerinize ulaşmanın\nen kolay yolu".localized)
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.9))
                             .multilineTextAlignment(.center)
@@ -147,5 +145,5 @@ struct WaveShape: Shape {
 
 #Preview {
     SplashScreen()
-        .environmentObject(AuthViewModel())
+       
 } 

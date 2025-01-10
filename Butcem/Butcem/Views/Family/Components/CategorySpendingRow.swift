@@ -22,7 +22,7 @@ struct CategorySpendingRow: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                Label(category.rawValue, systemImage: category.icon)
+				Label(category.localizedName, systemImage: category.icon)
                     .font(.headline)
                 
                 Spacer()

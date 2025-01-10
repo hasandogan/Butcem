@@ -11,7 +11,7 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Ana Sayfa", systemImage: "house.fill")
+				Label("Ana Sayfa".localized, systemImage: "house.fill")
 			}
 			
 			NavigationView {
@@ -19,7 +19,7 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("İşlemler", systemImage: "list.bullet")
+				Label("İşlemler".localized, systemImage: "list.bullet")
 			}
 			
 			NavigationView {
@@ -27,7 +27,7 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Bütçe", systemImage: "chart.pie.fill")
+				Label("Bütçe".localized, systemImage: "chart.pie.fill")
 			}
 			
 			NavigationView {
@@ -35,7 +35,19 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Hedefler", systemImage: "target")
+				Label("Hedefler".localized, systemImage: "target")
+			}
+			
+			NavigationView {
+				if subscriptionManager.canAccessPremiumFeatures {
+					RecurringTransactionsView()
+				} else {
+					PremiumView()
+				}
+			}
+			.navigationViewStyle(StackNavigationViewStyle())
+			.tabItem {
+				Label("Tekrarlayan İşlemler".localized, systemImage: "arrow.2.squarepath")
 			}
 			
 			NavigationView {
@@ -47,7 +59,7 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Aile Bütçesi", systemImage: "person.3.fill")
+				Label("Aile Bütçesi".localized, systemImage: "person.3.fill")
 			}
 			
 			NavigationView {
@@ -59,7 +71,7 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Hatırlatıcı", systemImage: "bell.fill")
+				Label("Hatırlatıcı".localized, systemImage: "bell.fill")
 			}
 			
 			NavigationView {
@@ -71,7 +83,19 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Analiz", systemImage: "chart.bar.fill")
+				Label("Analiz".localized, systemImage: "chart.bar.fill")
+			}
+			
+			NavigationView {
+				if subscriptionManager.canAccessPremiumFeatures {
+					AnalysisView()
+				} else {
+					PremiumView()
+				}
+			}
+			.navigationViewStyle(StackNavigationViewStyle())
+			.tabItem {
+				Label("Gelişmiş Analiz".localized, systemImage: "chart.bar.fill")
 			}
 			
 			
@@ -84,14 +108,14 @@ struct MainTabView: View {
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Çıktılar", systemImage: "square.and.arrow.up.circle.fill")
+				Label("Çıktılar".localized, systemImage: "square.and.arrow.up.circle.fill")
 			}
 			NavigationView {
 				SettingsView()
 			}
 			.navigationViewStyle(StackNavigationViewStyle())
 			.tabItem {
-				Label("Ayarlar", systemImage: "gearshape.fill")
+				Label("Ayarlar".localized, systemImage: "gearshape.fill")
 			}
 		}
 	}

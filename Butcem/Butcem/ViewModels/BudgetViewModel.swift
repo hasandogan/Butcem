@@ -17,11 +17,13 @@ class BudgetViewModel: ObservableObject {
     private let notificationManager = NotificationManager.shared
     
     init() {
-        setupTransactionObserver()
+		print("Init çağrıldı")
+		Task {
+			await fetchInitialData()
+		}
         setupListeners()
-        Task {
-            await fetchInitialData()
-        }
+		setupTransactionObserver()
+       
     }
     
     init(forPreview: Bool = false, budget: Budget? = nil, pastBudgets: [Budget] = []) {
@@ -38,13 +40,13 @@ class BudgetViewModel: ObservableObject {
     
     private func setupListeners() {
         // Mevcut ay dinleyicisi
-        currentBudgetListener?.remove()
+		print("burda mı?")
         currentBudgetListener = FirebaseService.shared.addBudgetListener { [weak self] budget in
             Task { @MainActor in
                 if let budget = budget {
                     print("📥 Budget received from listener:")
                     print("Total spent: \(budget.spentAmount)")
-                    print("Category limits: \(budget.categoryLimits.map { "\($0.category.rawValue): \($0.spent)/\($0.limit)" })")
+					print("Category limits: \(budget.categoryLimits.map { "\($0.category.localizedName): \($0.spent)/\($0.limit)" })")
                     
                     self?.budget = budget
                     
@@ -108,8 +110,30 @@ class BudgetViewModel: ObservableObject {
     }
     
     func setBudget(amount: Double, categoryLimits: [CategoryBudget]) async throws {
-        try await withProcessing {
+        print("🔄 Setting new budget: \(amount)")
+        
+        do {
+            // Bütçeyi ayarla
             try await FirebaseService.shared.setBudget(amount: amount, categoryLimits: categoryLimits)
+            print("✅ Budget set successfully")
+            
+            // Listener'ı yenile
+            setupListeners()
+            print("🔄 Listeners refreshed")
+            
+            // UI'ı güncelle
+            await MainActor.run {
+                self.budget = Budget(
+                    userId: AuthManager.shared.currentUserId,
+                    amount: amount,
+                    categoryLimits: categoryLimits,
+                    month: Date().startOfMonth()
+                )
+                print("✅ UI updated with new budget")
+            }
+        } catch {
+            print("❌ Error setting budget: \(error.localizedDescription)")
+            throw error
         }
     }
     
@@ -176,6 +200,7 @@ class BudgetViewModel: ObservableObject {
     
     private func checkMonthChange() {
         let currentMonth = Calendar.current.component(.month, from: Date())
+		print(Calendar.current.component(.month, from: Date()))
         let savedMonth = UserDefaults.standard.integer(forKey: "lastCheckedMonth")
         
         if currentMonth != savedMonth {
@@ -256,7 +281,7 @@ class BudgetViewModel: ObservableObject {
                 .reduce(0) { $0 + $1.amount }
             
             updatedLimits[index].spent = spent
-            print("Category \(limit.category.rawValue) spent updated: \(spent)")
+			print("Category \(limit.category.localizedName) spent updated: \(spent)")
         }
         
         // Bütçeyi güncelle
@@ -309,7 +334,7 @@ class BudgetViewModel: ObservableObject {
                 await MainActor.run {
                     self.budget = currentBudget
                     print("Initial budget loaded: \(currentBudget.spentAmount)")
-                    print("Category limits: \(currentBudget.categoryLimits.map { "\($0.category.rawValue): \($0.spent)/\($0.limit)" }.joined(separator: ", "))")
+					print("Category limits: \(currentBudget.categoryLimits.map { "\($0.category.localizedName): \($0.spent)/\($0.limit)" }.joined(separator: ", "))")
                 }
             }
             

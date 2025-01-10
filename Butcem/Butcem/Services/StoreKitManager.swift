@@ -42,7 +42,9 @@ class StoreKitManager: ObservableObject {
     deinit {
         transactionListener?.cancel()
     }
-    
+	
+
+	
     func loadProducts() async {
         do {
             products = try await Product.products(for: productIds)

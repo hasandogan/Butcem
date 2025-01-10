@@ -142,22 +142,6 @@ class DashboardViewModel: BaseViewModel {
         }
     }
     
-    var upcomingRecurringTransactions: [RecurringTransaction] {
-        let calendar = Calendar.current
-        let thirtyDaysFromNow = calendar.date(byAdding: .day, value: 30, to: Date()) ?? Date()
-        
-        return TransactionStore.shared.recurringTransactions
-            .filter { transaction in
-                guard let lastProcessed = transaction.lastProcessed else { return true }
-                let nextDate = calendar.date(
-                    byAdding: transaction.frequency.calendarComponent,
-                    value: 1,
-                    to: lastProcessed
-                ) ?? Date()
-                return nextDate <= thirtyDaysFromNow
-            }
-            .sorted { $0.lastProcessed ?? Date.distantPast < $1.lastProcessed ?? Date.distantPast }
-    }
     
     private func calculateCategorySpending() {
         let expenses = TransactionStore.shared.currentMonthExpenses

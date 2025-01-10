@@ -1,71 +1,42 @@
-import FirebaseAuth
-import SwiftUI
+import Foundation
 
-@MainActor
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
+    @Published var userId: String
+    @Published var userName: String
     
-    @Published private(set) var user: User?
-    @Published private(set) var isAuthenticated = false
-    @Published var errorMessage: String?
-    
-    var currentUserId: String? {
-        Auth.auth().currentUser?.uid
-    }
-	
-	var currentUserName: String? {
-		Auth.auth().currentUser?.displayName
-	}
-	
-	var currentEmail: String? {
-		Auth.auth().currentUser?.email
-	}
+    private let userNameKey = "com.app.userName"
     
     private init() {
-        setupAuthStateListener()
-    }
-    
-    private func setupAuthStateListener() {
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            Task { @MainActor in
-                self?.user = user
-                self?.isAuthenticated = user != nil
-            }
-			
+        // Geçici bir userId oluştur
+        let tempUserId = KeychainManager.shared.getUserId()
+        self.userId = tempUserId
+        
+        // Geçici userId ile userName'i ayarla
+        let defaultName = "Kullanıcı-\(String(tempUserId.prefix(4)))"
+        if let savedName = UserDefaults.standard.string(forKey: userNameKey) {
+            self.userName = savedName
+        } else {
+            UserDefaults.standard.set(defaultName, forKey: userNameKey)
+            self.userName = defaultName
         }
     }
     
-    func signIn(email: String, password: String) async throws {
-        do {
-            user = try await FirebaseService.shared.signIn(email: email, password: password)
-            isAuthenticated = true
-        } catch {
-            errorMessage = error.localizedDescription
-            throw error
-        }
+    var currentUserId: String {
+        return userId
     }
     
-    func signUp(email: String, password: String, name: String) async throws {
-        do {
-            user = try await FirebaseService.shared.signUp(email: email, password: password, name: name)
-            isAuthenticated = true
-        } catch {
-            errorMessage = error.localizedDescription
-            throw error
-        }
+    var currentUserName: String {
+        return userName
     }
     
-    func signOut() {
-        do {
-            try FirebaseService.shared.signOut()
-            user = nil
-            isAuthenticated = false
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+    func updateUserName(_ name: String) {
+        userName = name
+        UserDefaults.standard.set(name, forKey: userNameKey)
     }
     
-    func clearError() {
-        errorMessage = nil
+    // Aile bütçesi için paylaşım kodu oluştur
+    func generateSharingCode() -> String {
+        return String(userId.prefix(8))
     }
 } 

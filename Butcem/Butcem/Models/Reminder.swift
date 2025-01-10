@@ -1,7 +1,7 @@
 import Foundation
 import FirebaseFirestore
 
-struct Reminder: Identifiable, Codable, Equatable {
+struct Reminder: Identifiable, Codable {
     var id: String?
     let userId: String
     let title: String
@@ -10,7 +10,7 @@ struct Reminder: Identifiable, Codable, Equatable {
     let type: TransactionType
     let dueDate: Date
     let frequency: ReminderFrequency
-    let isActive: Bool
+    var isActive: Bool
     let note: String?
     let createdAt: Date?
     
@@ -41,7 +41,7 @@ struct Reminder: Identifiable, Codable, Equatable {
     }
     
     func asDictionary() -> [String: Any] {
-        var data: [String: Any] = [
+        var dict: [String: Any] = [
             "userId": userId,
             "title": title,
             "amount": amount,
@@ -49,18 +49,15 @@ struct Reminder: Identifiable, Codable, Equatable {
             "type": type.rawValue,
             "dueDate": dueDate,
             "frequency": frequency.rawValue,
-            "isActive": isActive
+            "isActive": isActive,
+            "createdAt": createdAt ?? Date()
         ]
         
         if let note = note {
-            data["note"] = note
+            dict["note"] = note
         }
         
-        if let createdAt = createdAt {
-            data["createdAt"] = createdAt
-        }
-        
-        return data
+        return dict
     }
     
     func toDictionary() -> [String: Any] {
@@ -68,7 +65,7 @@ struct Reminder: Identifiable, Codable, Equatable {
             "userId": userId,
             "title": title,
             "amount": amount,
-            "category": category.rawValue,
+			"category": category.localizedName,
             "type": type.rawValue,
             "dueDate": dueDate,
             "frequency": frequency.rawValue,

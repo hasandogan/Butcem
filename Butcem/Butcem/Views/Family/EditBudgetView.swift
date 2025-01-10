@@ -9,22 +9,22 @@ struct EditBudgetView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Bütçe Bilgileri")) {
-                    TextField("Bütçe Adı", text: $name)
-                    TextField("Toplam Bütçe", text: $budget)
+				Section(header: Text("Bütçe Bilgileri".localized)) {
+					TextField("Bütçe Adı".localized, text: $name)
+					TextField("Toplam Bütçe".localized, text: $budget)
                         .keyboardType(.decimalPad)
                 }
             }
-            .navigationTitle("Bütçeyi Düzenle")
+			.navigationTitle("Bütçeyi Düzenle".localized)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
+					Button("İptal".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kaydet") {
+					Button("Kaydet".localized) {
                         onSave(name, budget)
                         dismiss()
                     }

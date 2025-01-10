@@ -7,11 +7,11 @@ struct TrendsTab: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Text("Aylık Karşılaştırma")
+				Text("Aylık Karşılaştırma".localized)
                     .font(.headline)
                 
                 if monthlyData.isEmpty {
-                    Text("Veri bulunamadı")
+					Text("Veri bulunamadı".localized)
                         .foregroundColor(.secondary)
                         .padding()
                 } else {
@@ -19,20 +19,20 @@ struct TrendsTab: View {
                     Chart {
                         ForEach(monthlyData) { data in
                             BarMark(
-                                x: .value("Ay", data.month.monthString()),
-                                y: .value("Gelir", data.income),
+								x: .value("Ay".localized, data.month.monthString()),
+								y: .value("Gelir".localized, data.income),
                                 width: .fixed(20)
                             )
                             .foregroundStyle(.green)
-                            .position(by: .value("Tür", "Gelir"))
+							.position(by: .value("Tür".localized, "Gelir".localized))
                             
                             BarMark(
-                                x: .value("Ay", data.month.monthString()),
-                                y: .value("Gider", data.expense),
+								x: .value("Ay".localized, data.month.monthString()),
+								y: .value("Gider".localized, data.expense),
                                 width: .fixed(20)
                             )
                             .foregroundStyle(.red)
-                            .position(by: .value("Tür", "Gider"))
+							.position(by: .value("Tür".localized, "Gider".localized))
                         }
                     }
                     .frame(height: 200)
@@ -63,7 +63,7 @@ struct TrendsTab: View {
                             Circle()
                                 .fill(.green)
                                 .frame(width: 8, height: 8)
-                            Text("Gelir")
+							Text("Gelir".localized)
                                 .font(.caption)
                         }
                         
@@ -71,7 +71,7 @@ struct TrendsTab: View {
                             Circle()
                                 .fill(.red)
                                 .frame(width: 8, height: 8)
-                            Text("Gider")
+							Text("Gider".localized)
                                 .font(.caption)
                         }
                     }
@@ -123,7 +123,7 @@ struct MonthlyComparisonRow: View {
             
             HStack(spacing: 20) {
                 VStack(alignment: .leading) {
-                    Text("Gelir")
+					Text("Gelir".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(data.income.currencyFormat())
@@ -131,7 +131,7 @@ struct MonthlyComparisonRow: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Gider")
+					Text("Gider".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(data.expense.currencyFormat())
@@ -139,7 +139,7 @@ struct MonthlyComparisonRow: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Tasarruf")
+					Text("Tasarruf".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(data.savings.currencyFormat())

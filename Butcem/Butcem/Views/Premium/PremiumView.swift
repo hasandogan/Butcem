@@ -6,110 +6,34 @@ struct PremiumView: View {
 	
 	var body: some View {
 		ScrollView {
-			VStack(spacing: 30) {
+			VStack(spacing: 24) {
 				// Header
-				VStack(spacing: 15) {
-					Image(systemName: "star.circle.fill")
-						.font(.system(size: 60))
-						.foregroundColor(.yellow)
-					
-					Text("Premium'a Yükseltin")
-						.font(.title)
-						.fontWeight(.bold)
-					
-					Text("Tüm özelliklere erişin ve finansal hedeflerinize daha hızlı ulaşın")
-						.multilineTextAlignment(.center)
-						.foregroundColor(.secondary)
-				}
+				headerSection
 				
-				// Özellikler
-				VStack(spacing: 20) {
-					FeatureRow(icon: "chart.bar.fill", title: "Gelişmiş Analitik", description: "Detaylı grafik ve analizlerle finansal durumunuzu daha iyi anlayın")
-					FeatureRow(icon: "target", title: "Bütçe Planlama", description: "Kategori bazlı limitler ve otomatik önerilerle bütçenizi kontrol altında tutun")
-					FeatureRow(icon: "bell.fill", title: "Hatırlatıcılar", description: "Fatura ve ödemeleri asla kaçırmayın")
-					FeatureRow(icon: "arrow.triangle.2.circlepath", title: "Tekrarlayan İşlemler", description: "Düzenli ödemelerinizi otomatik olarak takip edin")
-					FeatureRow(icon: "square.and.arrow.up.circle.fill", title: "Çıktılar", description: "Harcamalarınızın pdf ve excel formatında çıktısın alabilirsiniz")
-				}
-				.padding()
-				.background(Color(.systemBackground))
-				.cornerRadius(12)
-				.shadow(radius: 5)
+				// Features
+				featuresSection
+					.padding(.horizontal)
 				
-				// Fiyatlandırma
-				VStack(spacing: 15) {
-					// Aylık Plan
-					if let monthlyProduct = viewModel.monthlyProduct {
-						PlanCard(
-							title: "Aylık Premium",
-							price: monthlyProduct.displayPrice,
-							period: "ay",
-							features: [
-								"Gelişmiş analitik",
-								"Bütçe planlama",
-								"Fatura hatırlatıcıları",
-								"Tekrarlayan işlemler",
-								"Çıktılar"
-							],
-							action: {
-								Task {
-									do {
-										try await viewModel.purchaseProduct(monthlyProduct)
-										await SubscriptionManager.shared.refresh()
-										dismiss()
-									} catch {
-										// Hata yönetimi
-									}
-								}
-							}
-						)
-					}
-					
-					// Yıllık Plan
-					if let yearlyProduct = viewModel.yearlyProduct {
-						PlanCard(
-							title: "Yıllık Premium",
-							price: yearlyProduct.displayPrice,
-							period: "yıl",
-							features: [
-								"Tüm aylık özellikleri",
-								"2 ay bedava",
-							],
-							isPro: false,
-							action: {
-								Task {
-									try? await viewModel.purchaseProduct(yearlyProduct)
-								}
-							}
-						)
-					}
-					
-					// Pro Plan
-					if let proProduct = viewModel.proProduct {
-						PlanCard(
-							title: "Pro",
-							price: proProduct.displayPrice,
-							period: "yıllık",
-							features: [
-								"Tüm Premium özellikleri",
-								"Aile/grup bütçesi",
-							],
-							isPro: true,
-							action: {
-								Task {
-									try? await viewModel.purchaseProduct(proProduct)
-								}
-							}
-						)
-					}
-				}
+				// Plans
+				plansSection
+					.padding(.horizontal)
+				
+				// Links
+				linksSection
+					.padding(.top, 8)
 			}
-			.padding()
+			.padding(.vertical)
 		}
-		.navigationBarTitleDisplayMode(.inline)
-		.toolbar {
-			ToolbarItem(placement: .navigationBarTrailing) {
-				Button("Kapat") {
-					dismiss()
+		.background(Color(.systemGroupedBackground))
+		.overlay {
+			if viewModel.isLoading {
+				ZStack {
+					Color.black.opacity(0.3)
+						.ignoresSafeArea()
+					ProgressView()
+						.padding()
+						.background(Color(.systemBackground))
+						.cornerRadius(10)
 				}
 			}
 		}
@@ -120,15 +44,180 @@ struct PremiumView: View {
 				Text(error)
 			}
 		}
-		.overlay {
-			if viewModel.isLoading {
-				ProgressView()
-					.padding()
-					.background(Color(.systemBackground))
-					.cornerRadius(8)
-					.shadow(radius: 2)
+		.toolbar {
+			ToolbarItem(placement: .navigationBarTrailing) {
+				Button {
+					dismiss()
+				} label: {
+					Image(systemName: "xmark.circle.fill")
+						.foregroundStyle(.gray)
+						.font(.title3)
+				}
 			}
 		}
+	}
+	
+	private var headerSection: some View {
+		VStack(spacing: 20) {
+			ZStack {
+				Circle()
+					.fill(LinearGradient(
+						colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
+						startPoint: .topLeading,
+						endPoint: .bottomTrailing
+					))
+					.frame(width: 100, height: 100)
+				
+				Image(systemName: "star.circle.fill")
+					.font(.system(size: 50))
+					.foregroundStyle(.linearGradient(
+						colors: [.yellow, .orange],
+						startPoint: .top,
+						endPoint: .bottom
+					))
+			}
+			
+			Text("Premium'a Yükseltin".localized)
+				.font(.title)
+				.fontWeight(.bold)
+				.foregroundStyle(.linearGradient(
+					colors: [.blue, .purple],
+					startPoint: .leading,
+					endPoint: .trailing
+				))
+			
+			Text("Tüm özelliklere erişin ve finansal hedeflerinize daha hızlı ulaşın")
+				.multilineTextAlignment(.center)
+				.foregroundColor(.secondary)
+				.padding(.horizontal)
+		}
+		.padding(20)
+		.background(
+			RoundedRectangle(cornerRadius: 20)
+				.fill(Color(.systemBackground))
+				.shadow(radius: 10, x: 0, y: 5)
+		)
+	}
+	
+	private var featuresSection: some View {
+		VStack(spacing: 16) {
+			FeatureRow(
+				icon: "chart.bar.fill",
+				title: "Gelişmiş Analitikler",
+				description: "Detaylı finansal analizler ve öngörüler"
+			)
+				.frame(maxWidth: .infinity)
+			
+			FeatureRow(
+				icon: "bell.fill",
+				title: "Sınırsız Hatırlatıcı",
+				description: "İstediğiniz kadar hatırlatıcı oluşturun"
+			)
+				.frame(maxWidth: .infinity)
+			
+			FeatureRow(
+				icon: "person.2.fill",
+				title: "Aile Bütçesi",
+				description: "Ailenizle birlikte bütçe yönetimi"
+			)
+				.frame(maxWidth: .infinity)
+			
+			FeatureRow(
+				icon: "arrow.up.right.circle.fill",
+				title: "Gelişmiş İhracat",
+				description: "Verilerinizi PDF ve Excel formatında dışa aktarın"
+			)
+				.frame(maxWidth: .infinity)
+		}
+		.padding()
+		.background(Color(.systemBackground))
+		.cornerRadius(12)
+	}
+	
+	private var plansSection: some View {
+		VStack(alignment: .leading, spacing: 20) {
+			Text("Üyelik Planları")
+				.font(.title2)
+				.fontWeight(.bold)
+				.padding(.horizontal)
+			
+			// Aylık Plan
+			PlanCard(
+				title: "Aylık Premium".localized,
+				price: viewModel.monthlyProduct?.displayPrice ?? "29,99 ₺",
+				period: "ay",
+				features: [
+					"Gelişmiş analitik".localized,
+					"Bütçe planlama".localized,
+					"Fatura hatırlatıcıları".localized,
+					"Tekrarlayan işlemler".localized,
+					"Çıktılar".localized
+				],
+				action: {
+					if let product = viewModel.monthlyProduct {
+						Task {
+							try? await viewModel.purchaseProduct(product)
+						}
+					}
+				}
+			)
+			
+			// Yıllık Plan
+			PlanCard(
+				title: "Yıllık Premium".localized,
+				price: viewModel.yearlyProduct?.displayPrice ?? "299,99 ₺",
+				period: "yıl",
+				features: [
+					"Tüm aylık özellikleri".localized,
+					"2 ay bedava".localized,
+				],
+				isPopular: true,
+				action: {
+					if let product = viewModel.yearlyProduct {
+						Task {
+							try? await viewModel.purchaseProduct(product)
+						}
+					}
+				}
+			)
+			
+			// Pro Plan
+			PlanCard(
+				title: "Pro",
+				price: viewModel.proProduct?.displayPrice ?? "499,99 ₺",
+				period: "yıllık".localized,
+				features: [
+					"Tüm Premium özellikleri".localized,
+					"Aile/grup bütçesi".localized,
+					"family-sharing ile bütün aileye ücretsiz erişim"
+				],
+				isPro: true,
+				action: {
+					if let product = viewModel.proProduct {
+						Task {
+							try? await viewModel.purchaseProduct(product)
+						}
+					}
+				}
+			)
+		}
+	}
+	
+	private var linksSection: some View {
+		VStack(spacing: 12) {
+			Link(destination: URL(string: "https://hasandgn.com/kullanici-sozlesmesi")!) {
+				Text("Kullanıcı Sözleşmesi")
+					.font(.footnote)
+					.foregroundColor(.secondary)
+			}
+			
+			Link(destination: URL(string: "https://hasandgn.com/gizlilik-politikasi")!) {
+				Text("Gizlilik Politikası")
+					.font(.footnote)
+					.foregroundColor(.secondary)
+			}
+		}
+		.padding(.horizontal)
 	}
 }
 
@@ -138,13 +227,13 @@ struct FeatureRow: View {
 	let description: String
 	
 	var body: some View {
-		HStack(spacing: 15) {
+		HStack(spacing: 16) {
 			Image(systemName: icon)
 				.font(.title2)
 				.foregroundColor(.accentColor)
-				.frame(width: 40)
+				.frame(width: 32)
 			
-			VStack(alignment: .leading, spacing: 5) {
+			VStack(alignment: .leading, spacing: 4) {
 				Text(title)
 					.font(.headline)
 				
@@ -152,7 +241,12 @@ struct FeatureRow: View {
 					.font(.subheadline)
 					.foregroundColor(.secondary)
 			}
+			
+			Spacer()
 		}
+		.padding()
+		.background(Color(.secondarySystemBackground))
+		.cornerRadius(12)
 	}
 }
 
@@ -161,16 +255,28 @@ struct PlanCard: View {
 	let price: String
 	let period: String
 	let features: [String]
+	var isPopular: Bool = false
 	var isPro: Bool = false
 	let action: () -> Void
 	
 	var body: some View {
 		VStack(spacing: 20) {
+			if isPopular {
+				Text("En Popüler")
+					.font(.caption)
+					.fontWeight(.medium)
+					.foregroundColor(.white)
+					.padding(.horizontal, 12)
+					.padding(.vertical, 6)
+					.background(Color.orange)
+					.cornerRadius(20)
+			}
+			
 			Text(title)
 				.font(.title2)
 				.fontWeight(.bold)
 			
-			HStack(alignment: .firstTextBaseline) {
+			HStack(alignment: .firstTextBaseline, spacing: 0) {
 				Text(price)
 					.font(.title)
 					.fontWeight(.bold)
@@ -179,30 +285,54 @@ struct PlanCard: View {
 					.foregroundColor(.secondary)
 			}
 			
-			VStack(alignment: .leading, spacing: 10) {
+			VStack(alignment: .leading, spacing: 12) {
 				ForEach(features, id: \.self) { feature in
-					HStack {
+					HStack(spacing: 12) {
 						Image(systemName: "checkmark.circle.fill")
 							.foregroundColor(.green)
 						Text(feature)
+							.font(.subheadline)
 					}
 				}
 			}
+			.padding(.vertical)
 			
 			Button(action: action) {
 				Text("Hemen Başla")
 					.font(.headline)
 					.frame(maxWidth: .infinity)
 					.padding()
-					.background(isPro ? Color.accentColor : Color.blue)
+					.background(
+						LinearGradient(
+							colors: isPro ? [.purple, .blue] : [.blue, .cyan],
+							startPoint: .leading,
+							endPoint: .trailing
+						)
+					)
 					.foregroundColor(.white)
-					.cornerRadius(12)
+					.cornerRadius(15)
 			}
 		}
-		.padding()
-		.background(Color(.systemBackground))
-		.cornerRadius(16)
-		.shadow(radius: 5)
+		.padding(20)
+		.background(
+			RoundedRectangle(cornerRadius: 20)
+				.fill(Color(.systemBackground))
+				.shadow(
+					color: isPopular ? .orange.opacity(0.2) : .gray.opacity(0.2),
+					radius: 15,
+					x: 0,
+					y: 5
+				)
+		)
+		.overlay(
+			RoundedRectangle(cornerRadius: 20)
+				.stroke(
+					isPopular ? Color.orange.opacity(0.5) : 
+					isPro ? Color.purple.opacity(0.5) : Color.clear,
+					lineWidth: 2
+				)
+		)
+		.scaleEffect(isPopular ? 1.02 : 1.0)
 	}
 }
 
@@ -239,6 +369,25 @@ enum PremiumFeature {
 		case .advancedAnalytics: return "Gelişmiş analiz ve raporlama"
 		case .notifications: return "Özelleştirilmiş bildirimler"
 		}
+	}
+}
+
+extension View {
+	func premiumCardStyle() -> some View {
+		self
+			.padding(20)
+			.background(
+				RoundedRectangle(cornerRadius: 20)
+					.fill(Color(.systemBackground))
+					.shadow(radius: 10, x: 0, y: 5)
+			)
+	}
+	
+	func premiumSectionTitle() -> some View {
+		self
+			.font(.title2)
+			.fontWeight(.bold)
+			.padding(.horizontal)
 	}
 }
 

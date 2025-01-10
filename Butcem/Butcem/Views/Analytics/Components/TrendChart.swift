@@ -6,20 +6,20 @@ struct TrendChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Harcama Trendi")
+			Text("Harcama Trendi".localized)
                 .font(.headline)
             
             Chart {
                 ForEach(data, id: \.date) { item in
                     LineMark(
-                        x: .value("Tarih", item.date),
-                        y: .value("Tutar", item.value)
+						x: .value("Tarih".localized, item.date),
+						y: .value("Tutar".localized, item.value)
                     )
                     .foregroundStyle(.blue)
                     
                     AreaMark(
-                        x: .value("Tarih", item.date),
-                        y: .value("Tutar", item.value)
+						x: .value("Tarih".localized, item.date),
+						y: .value("Tutar".localized, item.value)
                     )
                     .foregroundStyle(.blue.opacity(0.1))
                 }

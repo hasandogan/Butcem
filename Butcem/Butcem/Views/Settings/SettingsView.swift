@@ -1,35 +1,131 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var settingsViewModel = UserSettingsViewModel()
     @State private var showingBillingDayPicker = false
+    @State private var showingDeleteAlert = false
+    @State private var showingPremiumView = false
+    @State private var isRestoringPurchases = false
     
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Hesap")) {
-                    if let user = authViewModel.user {
-                        Text(user.displayName ?? "Kullanıcı")
-                        Text(user.email ?? "")
+                // Abonelik Bilgileri
+                Section(header: Text("Abonelik".localized)) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        // Plan Bilgisi
+                        HStack {
+                            Image(systemName: settingsViewModel.isPremium ? "star.circle.fill" : "star.circle")
+                                .foregroundColor(settingsViewModel.isPremium ? .yellow : .gray)
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text(settingsViewModel.subscriptionPlan)
+                                    .font(.headline)
+                                Text(settingsViewModel.isPremium ? "Aktif Abonelik" : "Ücretsiz Plan")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        
+                        if settingsViewModel.isPremium {
+                            Divider()
+                            
+                            // Fiyat Bilgisi
+                            HStack {
+                                Image(systemName: "creditcard")
+                                    .foregroundColor(.blue)
+                                VStack(alignment: .leading) {
+                                    Text(settingsViewModel.billingPeriodLabel)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                    if settingsViewModel.subscriptionPrice > 0 {
+                                        Text(settingsViewModel.subscriptionPrice.formatted(.currency(code: "TRY")))
+                                            .font(.subheadline)
+                                    } else {
+                                        Text("Ücretsiz")
+                                            .font(.subheadline)
+                                    }
+                                }
+                            }
+                            
+                            // Başlangıç Tarihi
+                            HStack {
+                                Image(systemName: "calendar.badge.plus")
+                                    .foregroundColor(.blue)
+                                VStack(alignment: .leading) {
+                                    Text("Başlangıç Tarihi")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                    Text(settingsViewModel.subscriptionStartDate?.formatted(date: .long, time: .omitted) ?? "")
+                                        .font(.subheadline)
+                                }
+                            }
+                            
+                            // Yenileme/Bitiş Tarihi
+                            if let endDate = settingsViewModel.subscriptionEndDate {
+                                HStack {
+                                    Image(systemName: "calendar.badge.clock")
+                                        .foregroundColor(.blue)
+                                    VStack(alignment: .leading) {
+                                        Text("Yenileme Tarihi")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text(endDate.formatted(date: .long, time: .omitted))
+                                            .font(.subheadline)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Premium'a Yükselt Butonu (sadece ücretsiz planda)
+                        if !settingsViewModel.isPremium {
+                            Button {
+                                showingPremiumView = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "star.circle.fill")
+                                        .foregroundColor(.yellow)
+                                    Text("Premium'a Yükselt")
+                                        .bold()
+                                }
+                            }
+                            .tint(.blue)
+                            .padding(.top, 8)
+                        }
                     }
+                    .padding(.vertical, 8)
+                }
+                
+                Section(header: Text("Uygulama".localized)) {
+                    Link("Gizlilik Politikası".localized, destination: URL(string: "https://hasandgn.com/kullanici-sozlesmesi")!)
+                    Link("Kullanım Koşulları".localized, destination: URL(string: "https://hasandgn.com/gizlilik-politikasi")!)
                     
-                    Button(role: .destructive) {
-                        authViewModel.signOut()
+                    Button {
+                        Task {
+                            isRestoringPurchases = true
+                            try? await StoreKitService.shared.restorePurchases()
+                            isRestoringPurchases = false
+                        }
                     } label: {
-                        Text("Çıkış Yap")
+                        if isRestoringPurchases {
+                            HStack {
+                                Text("Satın Alımlar Geri Yükleniyor...")
+                                Spacer()
+                                ProgressView()
+                            }
+                        } else {
+                            Text("Satın Alımları Geri Yükle")
+                        }
                     }
+                    .disabled(isRestoringPurchases)
+                    
+                    Text("version 1.0.0".localized)
                 }
                 
-                Section(header: Text("Uygulama")) {
-                    Link("Gizlilik Politikası", destination: URL(string: "https://your-privacy-policy.com")!)
-                    Link("Kullanım Koşulları", destination: URL(string: "https://your-terms.com")!)
-                    Text("Versiyon 1.0.0")
-                }
-                
-                Section(header: Text("Hesap Ayarları")) {
+                Section(header: Text("Hesap Ayarları".localized)) {
                     HStack {
-                        Text("Hesap Kesim Günü")
+                        Text("Hesap Kesim Günü".localized)
                         Spacer()
                         Button("\(settingsViewModel.billingDay)") {
                             showingBillingDayPicker = true
@@ -37,7 +133,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Ayarlar")
+            .navigationTitle("Ayarlar".localized)
             .sheet(isPresented: $showingBillingDayPicker) {
                 BillingDayPickerView(
                     selectedDay: settingsViewModel.billingDay
@@ -45,6 +141,16 @@ struct SettingsView: View {
                     Task {
                         await settingsViewModel.updateBillingDay(newDay)
                     }
+                }
+            }
+            .sheet(isPresented: $showingPremiumView) {
+                PremiumView()
+            }
+            .alert("Hata".localized, isPresented: $settingsViewModel.showError) {
+                Button("Tamam".localized, role: .cancel) { }
+            } message: {
+                if let error = settingsViewModel.errorMessage {
+                    Text(error)
                 }
             }
         }
@@ -73,10 +179,10 @@ struct BillingDayPickerView: View {
                     }
                 }
             }
-            .navigationTitle("Hesap Kesim Günü")
+			.navigationTitle("Hesap Kesim Günü".localized)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kapat") {
+					Button("Kapat".localized) {
                         dismiss()
                     }
                 }
@@ -84,3 +190,5 @@ struct BillingDayPickerView: View {
         }
     }
 } 
+
+

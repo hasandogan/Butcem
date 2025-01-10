@@ -6,7 +6,7 @@ struct MonthlyTrendChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Aylık Trend")
+			Text("Aylık Trend".localized)
                 .font(.headline)
             
             Chart {

@@ -73,6 +73,40 @@ enum Category: String, CaseIterable, Codable {
         case .digerGider: return "ellipsis.circle"
         }
     }
+	
+	var localizedName: String {
+		switch self {
+		case .maas: return "Maaş".localized
+		case .kira: return "Kira Geliri".localized
+		case .yatirim: return "Yatırım Geliri".localized
+		case .faiz: return "Faiz Geliri".localized
+		case .ikramiye: return "İkramiye/Prim".localized
+		case .emekliMaasi: return "Emekli Maaşı".localized
+		case .serbest: return "Serbest Meslek".localized
+		case .digerGelir: return "Diğer Gelir".localized
+			
+		case .market: return "Market".localized
+		case .ulasim: return "Ulaşım".localized
+		case .faturalar: return "Faturalar".localized
+		case .kiraGider: return "Kira Gideri".localized
+		case .giyim: return "Giyim".localized
+		case .eglence: return "Eğlence".localized
+		case .saglik: return "Sağlık".localized
+		case .egitim: return "Eğitim".localized
+		case .restoran: return "Restoran".localized
+		case .spor: return "Spor".localized
+		case .teknoloji: return "Teknoloji".localized
+		case .tatil: return "Tatil".localized
+		case .bakim: return "Bakım".localized
+		case .hediyelik: return "Hediyelik".localized
+		case .ev: return "Ev".localized
+		case .sigorta: return "Sigorta".localized
+		case .aidat: return "Aidat".localized
+		case .digerGider: return "Diğer Gider".localized
+		}
+	}
+	
+	
     
     var color: Color {
         switch self {

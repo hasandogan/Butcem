@@ -5,8 +5,7 @@ struct FamilyTransaction: Identifiable, Codable {
     var id: String?
     let userId: String
     let amount: Double
-	let memberName: String
-    let memberEmail: String
+    let memberName: String
     let category: FamilyBudgetCategory
     let date: Date
     let note: String?
@@ -22,7 +21,6 @@ struct FamilyTransaction: Identifiable, Codable {
             "userId": userId,
             "amount": amount,
             "memberName": memberName,
-            "memberEmail": memberEmail,
             "category": category.rawValue,
             "date": date,
         ]

@@ -20,82 +20,82 @@ struct AddReminderView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Hatırlatıcı Detayları")) {
-                    TextField("Başlık", text: $title)
+				Section(header: Text("Hatırlatıcı Detayları".localized)) {
+					TextField("Başlık".localized, text: $title)
                     
-                    TextField("Tutar", text: $amount)
+					TextField("Tutar".localized, text: $amount)
                         .keyboardType(.decimalPad)
                     
-                    Picker("Tür", selection: $selectedType) {
-                        Text("Gelir").tag(TransactionType.income)
-                        Text("Gider").tag(TransactionType.expense)
+					Picker("Tür".localized, selection: $selectedType) {
+						Text("Gelir".localized).tag(TransactionType.income)
+						Text("Gider".localized).tag(TransactionType.expense)
                     }
                     
-                    Picker("Kategori", selection: $selectedCategory) {
+					Picker("Kategori".localized, selection: $selectedCategory) {
                         ForEach(Category.allCases, id: \.self) { category in
-                            Label(category.rawValue, systemImage: category.icon)
+                            Label(category.localizedName, systemImage: category.icon)
                                 .tag(category)
                         }
                     }
                 }
                 
-                Section(header: Text("Zamanlama")) {
+				Section(header: Text("Zamanlama".localized)) {
                     DatePicker(
-                        "Tarih ve Saat",
+						"Tarih ve Saat".localized,
                         selection: $dueDate,
                         displayedComponents: [.date, .hourAndMinute]
                     )
                     .environment(\.locale, Locale(identifier: "tr_TR"))
                     .environment(\.timeZone, TimeZone(identifier: "Europe/Istanbul")!)
                     
-                    Picker("Tekrar", selection: $selectedFrequency) {
+					Picker("Tekrar".localized, selection: $selectedFrequency) {
                         ForEach(Reminder.ReminderFrequency.allCases, id: \.self) { frequency in
                             Text(frequency.rawValue).tag(frequency)
                         }
                     }
                 }
                 
-                Section(header: Text("Not")) {
-                    TextField("Not ekle", text: $note)
+				Section(header: Text("Not".localized)) {
+					TextField("Not ekle".localized, text: $note)
                 }
                 
-                if !UserDefaults.standard.bool(forKey: "isPremium") {
+				if !UserDefaults.standard.bool(forKey: "isPremium") {
                     Section {
                         HStack {
                             Image(systemName: "star.fill")
                                 .foregroundColor(.yellow)
-                            Text("Bu özellik Premium kullanıcılara özeldir")
+							Text("Bu özellik Premium kullanıcılara özeldir".localized)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
                 }
             }
-            .navigationTitle("Hatırlatıcı Ekle")
+			.navigationTitle("Hatırlatıcı Ekle".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
+					Button("İptal".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Ekle") {
+					Button("Ekle".localized) {
                         addReminder()
                     }
                     .disabled(!isFormValid)
                 }
             }
-            .alert("Bildirim İzni Gerekli", isPresented: $showingNotificationSettings) {
-                Button("Ayarlara Git") {
+			.alert("Bildirim İzni Gerekli".localized, isPresented: $showingNotificationSettings) {
+				Button("Ayarlara Git".localized) {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(url)
                     }
                 }
-                Button("İptal", role: .cancel) {}
+				Button("İptal".localized, role: .cancel) {}
             } message: {
-                Text("Hatırlatıcıları kullanabilmek için bildirim iznine ihtiyacımız var.")
+				Text("Hatırlatıcıları kullanabilmek için bildirim iznine ihtiyacımız var.".localized)
             }
         }
     }

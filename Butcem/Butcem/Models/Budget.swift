@@ -134,7 +134,15 @@ struct CategoryBudget: Identifiable, Codable {
     var remainingAmount: Double { limit - spent }
     var spentPercentage: Double { (spent / limit) * 100 }
     var isOverBudget: Bool { spent > limit }
-    
+	
+	func asDictionary() -> [String: Any] {
+		return [
+			"id": id,
+			"category": category.rawValue,
+			"limit": limit,
+			"spent": spent
+		]
+	}
     var status: BudgetStatus {
         let percentage = spent / limit
         switch percentage {

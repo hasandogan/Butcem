@@ -6,11 +6,11 @@ struct SavingsProgressCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Tasarruf İlerlemesi")
+			Text("Tasarruf İlerlemesi".localized)
                 .font(.headline)
             
             if progress.isEmpty {
-                Text("Henüz veri bulunmuyor")
+				Text("Henüz veri bulunmuyor".localized)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {

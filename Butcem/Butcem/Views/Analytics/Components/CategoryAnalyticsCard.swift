@@ -5,11 +5,11 @@ struct CategoryAnalyticsCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Kategori Bazlı Harcamalar")
+			Text("Kategori Bazlı Harcamalar".localized)
                 .font(.headline)
             
             if analytics.isEmpty {
-                Text("Henüz harcama bulunmuyor")
+				Text("Henüz harcama bulunmuyor".localized)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {

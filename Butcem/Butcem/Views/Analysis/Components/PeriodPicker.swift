@@ -4,9 +4,9 @@ struct PeriodPicker: View {
     @Binding var selectedPeriod: AnalysisPeriod
     
     var body: some View {
-        Picker("Dönem", selection: $selectedPeriod) {
+		Picker("Dönem".localized, selection: $selectedPeriod) {
             ForEach(AnalysisPeriod.allCases, id: \.self) { period in
-                Text(period.rawValue).tag(period)
+				Text(period.description).tag(period)
             }
         }
         .pickerStyle(.segmented)

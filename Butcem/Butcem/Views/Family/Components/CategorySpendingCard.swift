@@ -23,7 +23,7 @@ struct FamilyCategorySpendingCard: View {
                 ForEach(limits.sorted { $0.spent > $1.spent }) { limit in
                     VStack(spacing: 8) {
                         HStack {
-                            Label(limit.category.rawValue, systemImage: limit.category.icon)
+							Label(limit.category.localizedName, systemImage: limit.category.icon)
                                 .foregroundColor(limit.category.color)
                             Spacer()
                             Text(limit.spent.currencyFormat())

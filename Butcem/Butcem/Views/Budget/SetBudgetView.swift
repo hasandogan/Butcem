@@ -10,6 +10,8 @@ struct SetBudgetView: View {
     @State private var notificationsEnabled: Bool = true
     @State private var warningThreshold: Double = 70
     @State private var dangerThreshold: Double = 90
+    @State private var showingLimitError = false
+    @State private var limitErrorMessage = ""
     
     init(viewModel: BudgetViewModel) {
         self.viewModel = viewModel
@@ -27,10 +29,18 @@ struct SetBudgetView: View {
         }
     }
     
+    private var totalCategoryLimits: Double {
+        categoryLimits.values.reduce(0, +)
+    }
+    
+    private var remainingBudget: Double {
+        totalBudget - totalCategoryLimits
+    }
+    
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Toplam Bütçe")) {
+				Section(header: Text("Toplam Bütçe".localized)) {
                     HStack {
                         Text("")
                         TextField("", value: $totalBudget, format: .number)
@@ -38,17 +48,19 @@ struct SetBudgetView: View {
                     }
                 }
                 
-                Section(header: Text("Kategori Limitleri")) {
+				Section(header: Text("Kategori Limitleri".localized),
+                        footer: Text("Kalan Bütçe: \(remainingBudget.currencyFormat())")) {
                     ForEach(Category.expenseCategories, id: \.self) { category in
                         CategoryLimitRow(
-                            category: category,
-                            limit: categoryLimitBinding(for: category)
+								category: category,
+                            limit: categoryLimitBinding(for: category),
+                            maxLimit: remainingBudget + (categoryLimits[category] ?? 0)
                         )
                     }
                 }
                 
-                Section("Bildirim Ayarları") {
-                    Toggle("Bütçe Uyarıları", isOn: $notificationsEnabled)
+				Section("Bildirim Ayarları".localized) {
+					Toggle("Bütçe Uyarıları".localized, isOn: $notificationsEnabled)
                     
                     if notificationsEnabled {
                         VStack(alignment: .leading) {
@@ -63,19 +75,24 @@ struct SetBudgetView: View {
                     }
                 }
             }
-            .navigationTitle("Bütçe Belirle")
+			.navigationTitle("Bütçe Belirle".localized)
             .navigationBarItems(
-                leading: Button("İptal") {
+				leading: Button("İptal".localized) {
                     dismiss()
                 },
-                trailing: Button("Kaydet") {
+				trailing: Button("Kaydet".localized) {
                     saveBudget()
                 }
             )
-            .alert("Hata", isPresented: $showingError) {
-                Button("Tamam", role: .cancel) {}
+			.alert("Hata".localized, isPresented: $showingError) {
+				Button("Tamam".localized, role: .cancel) {}
             } message: {
-                Text("Toplam bütçe 0'dan büyük olmalıdır")
+				Text("Toplam bütçe 0'dan büyük olmalıdır".localized)
+            }
+            .alert("Hata".localized, isPresented: $showingLimitError) {
+                Button("Tamam".localized, role: .cancel) {}
+            } message: {
+                Text(limitErrorMessage)
             }
         }
     }
@@ -83,7 +100,17 @@ struct SetBudgetView: View {
     private func categoryLimitBinding(for category: Category) -> Binding<Double> {
         Binding(
             get: { self.categoryLimits[category, default: 0] },
-            set: { self.categoryLimits[category] = $0 }
+            set: { newValue in
+                let currentLimit = self.categoryLimits[category, default: 0]
+                let otherLimitsTotal = self.totalCategoryLimits - currentLimit
+                
+                if otherLimitsTotal + newValue > totalBudget {
+                    showingLimitError = true
+                    limitErrorMessage = "Kategori limitleri toplamı toplam bütçeyi aşamaz".localized
+                } else {
+                    self.categoryLimits[category] = newValue
+                }
+            }
         )
     }
     
@@ -117,14 +144,20 @@ struct SetBudgetView: View {
 struct CategoryLimitRow: View {
     let category: Category
     @Binding var limit: Double
+    let maxLimit: Double
     
     var body: some View {
         HStack {
-            Label(category.rawValue, systemImage: category.icon)
+			Label(category.localizedName, systemImage: category.icon)
             Spacer()
-            TextField("Limit", value: $limit, format: .currency(code: "TRY"))
+			TextField("Limit".localized, value: $limit, format: .currency(code: "TRY"))
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
+                .onChange(of: limit) { newValue in
+                    if newValue > maxLimit {
+                        limit = maxLimit
+                    }
+                }
         }
     }
 }

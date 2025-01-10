@@ -4,64 +4,71 @@ struct CreateFamilyBudgetView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel = FamilyBudgetViewModel()
     
-    @State private var budgetName = ""
+    @State private var name = ""
     @State private var totalBudget = ""
-    @State private var memberEmail = ""
-    @State private var members: [String] = []
+    @State private var isCreating = false
     @State private var showingError = false
     @State private var errorMessage = ""
+    @State private var showingSuccessAlert = false
+    @State private var createdBudgetCode = ""
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Bütçe Bilgileri")) {
-                    TextField("Bütçe Adı", text: $budgetName)
+                    TextField("Bütçe Adı", text: $name)
+                    
                     TextField("Toplam Bütçe", text: $totalBudget)
                         .keyboardType(.decimalPad)
                 }
                 
-                Section(header: Text("Üyeler")) {
-                    HStack {
-                        TextField("E-posta", text: $memberEmail)
-                            .autocapitalization(.none)
-                            .keyboardType(.emailAddress)
-                        
-                        Button {
-                            if !memberEmail.isEmpty {
-                                members.append(memberEmail)
-                                memberEmail = ""
-                            }
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
+                Section {
+                    Button(action: createBudget) {
+                        if isCreating {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                        } else {
+                            Text("Bütçe Oluştur")
                         }
                     }
-                    
-                    ForEach(members, id: \.self) { email in
-                        Text(email)
-                    }
-                    .onDelete { indexSet in
-                        members.remove(atOffsets: indexSet)
+                    .frame(maxWidth: .infinity)
+                    .disabled(name.isEmpty || totalBudget.isEmpty || isCreating)
+                }
+                
+                if !createdBudgetCode.isEmpty {
+                    Section(header: Text("Paylaşım Kodu")) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Bu kodu aile üyeleriyle paylaşın:")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            HStack {
+                                Text(createdBudgetCode)
+                                    .font(.title2)
+                                    .bold()
+                                    .foregroundColor(.blue)
+                                
+                                Spacer()
+                                
+                                Button {
+                                    UIPasteboard.general.string = createdBudgetCode
+                                } label: {
+                                    Image(systemName: "doc.on.doc")
+                                }
+                            }
+                            .padding()
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(10)
+                        }
                     }
                 }
             }
-            .navigationTitle("Aile Bütçesi Oluştur")
+            .navigationTitle("Yeni Aile Bütçesi")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("İptal") {
                         dismiss()
                     }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Oluştur") {
-                        createBudget()
-                    }
-                    .disabled(budgetName.isEmpty || totalBudget.isEmpty)
-                }
-            }
-            .overlay {
-                if viewModel.isLoading {
-                    ProgressView()
                 }
             }
             .alert("Hata", isPresented: $showingError) {
@@ -69,32 +76,50 @@ struct CreateFamilyBudgetView: View {
             } message: {
                 Text(errorMessage)
             }
+            .alert("Bütçe Oluşturuldu", isPresented: $showingSuccessAlert) {
+                Button("Tamam") {
+                    dismiss()
+                }
+            } message: {
+                Text("Aile bütçeniz başarıyla oluşturuldu. Paylaşım kodunu kullanarak aile üyelerini ekleyebilirsiniz.")
+            }
         }
     }
     
     private func createBudget() {
-        guard let amount = Double(totalBudget) else {
-            errorMessage = "Geçerli bir bütçe tutarı girin"
+        guard let budgetAmount = Double(totalBudget) else {
+            errorMessage = "Geçerli bir bütçe tutarı giriniz"
             showingError = true
             return
         }
         
+        isCreating = true
+        
         Task {
             do {
                 try await viewModel.createFamilyBudget(
-                    name: budgetName,
-                    members: members,
-                    totalBudget: amount
+                    name: name,
+                    totalBudget: budgetAmount
                 )
+                
                 await MainActor.run {
-                    dismiss()
+                    if let code = viewModel.currentBudget?.sharingCode {
+                        createdBudgetCode = code
+                    }
+                    showingSuccessAlert = true
+                    isCreating = false
                 }
             } catch {
                 await MainActor.run {
                     errorMessage = error.localizedDescription
                     showingError = true
+                    isCreating = false
                 }
             }
         }
     }
+}
+
+#Preview {
+    CreateFamilyBudgetView()
 }

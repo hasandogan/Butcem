@@ -22,7 +22,7 @@ struct BudgetSummaryCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("Toplam Bütçe")
+				Text("Toplam Bütçe".localized)
                     .font(.headline)
                 Spacer()
                 Text(budget.amount.currencyFormat())
@@ -35,7 +35,7 @@ struct BudgetSummaryCard: View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Harcanan")
+					Text("Harcanan".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(spentAmount.currencyFormat())

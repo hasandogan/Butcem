@@ -22,7 +22,7 @@ struct FinancialGoalsView: View {
                 
                 // Aktif Hedefler
                 if !viewModel.activeGoals.isEmpty {
-                    Section(header: SectionHeader(title: "Aktif Hedefler")) {
+					Section(header: SectionHeader(title: "Aktif Hedefler".localized)) {
                         ForEach(viewModel.activeGoals) { goal in
                             GoalCard(goal: goal)
                                 .onTapGesture {
@@ -34,7 +34,7 @@ struct FinancialGoalsView: View {
                 
                 // Tamamlanan Hedefler
                 if !viewModel.completedGoals.isEmpty {
-                    Section(header: SectionHeader(title: "Tamamlanan Hedefler")) {
+					Section(header: SectionHeader(title: "Tamamlanan Hedefler".localized)) {
                         ForEach(viewModel.completedGoals) { goal in
                             GoalCard(goal: goal)
                                 .onTapGesture {
@@ -46,7 +46,7 @@ struct FinancialGoalsView: View {
             }
             .padding()
         }
-        .navigationTitle("Finansal Hedefler")
+		.navigationTitle("Finansal Hedefler".localized)
         .toolbar {
             Button {
                 showingAddGoal = true
@@ -81,7 +81,7 @@ struct GoalsSummaryCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("Toplam Hedef")
+				Text("Toplam Hedef".localized)
                     .font(.headline)
                 Spacer()
                 Text(totalTarget.currencyFormat())
@@ -94,7 +94,7 @@ struct GoalsSummaryCard: View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Biriken")
+					Text("Biriken".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(currentAmount.currencyFormat())
@@ -103,7 +103,7 @@ struct GoalsSummaryCard: View {
                 Spacer()
                 
                 VStack(alignment: .trailing) {
-                    Text("İlerleme")
+					Text("İlerleme".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text("%\(Int(progress))")
@@ -122,14 +122,14 @@ struct UpcomingGoalsCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Yaklaşan Hedefler")
+			Text("Yaklaşan Hedefler".localized)
                 .font(.headline)
             
             ForEach(goals) { goal in
                 HStack {
                     Label(goal.title, systemImage: goal.category.icon)
                     Spacer()
-                    Text("\(goal.remainingDays) gün")
+					Text("\(goal.remainingDays) gün".localized)
                         .foregroundColor(goal.remainingDays < 7 ? .red : .secondary)
                 }
                 .font(.subheadline)

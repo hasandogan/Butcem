@@ -33,7 +33,7 @@ class AddTransactionViewModel: ObservableObject {
         
         do {
             let transaction = Transaction(
-                userId: AuthManager.shared.user?.uid ?? "",
+				userId: AuthManager.shared.currentUserId ?? "",
                 amount: amount,
                 category: category,
                 type: type,

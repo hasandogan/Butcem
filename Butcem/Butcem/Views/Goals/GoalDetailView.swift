@@ -38,7 +38,7 @@ struct GoalDetailView: View {
                         newAmount = goal.currentAmount
                         showingUpdateProgress = true
                     } label: {
-                        Label("İlerleme Güncelle", systemImage: "arrow.clockwise")
+						Label("İlerleme Güncelle".localized, systemImage: "arrow.clockwise")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.accentColor)
@@ -47,6 +47,18 @@ struct GoalDetailView: View {
                     }
                     .padding(.horizontal)
                 }
+				
+					Button {
+						showingDeleteAlert = true
+					} label: {
+						Label("Hedefi Sil".localized, systemImage: "trash")
+							.frame(maxWidth: .infinity)
+							.padding()
+							.background(.red)
+							.foregroundColor(.white)
+							.cornerRadius(10)
+					}
+					.padding(.horizontal)
             }
             .padding(.vertical)
         }
@@ -58,14 +70,14 @@ struct GoalDetailView: View {
                     Button {
                         showingUpdateProgress = true
                     } label: {
-                        Label("İlerleme Güncelle", systemImage: "arrow.clockwise")
+						Label("İlerleme Güncelle".localized, systemImage: "arrow.clockwise")
                     }
                 }
                 
                 Button(role: .destructive) {
                     showingDeleteAlert = true
                 } label: {
-                    Label("Hedefi Sil", systemImage: "trash")
+					Label("Hedefi Sil".localized, systemImage: "trash")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -78,16 +90,16 @@ struct GoalDetailView: View {
                 currentAmount: $newAmount
             )
         }
-        .alert("Hedefi Sil", isPresented: $showingDeleteAlert) {
-            Button("İptal", role: .cancel) {}
-            Button("Sil", role: .destructive) {
+		.alert("Hedefi Sil".localized, isPresented: $showingDeleteAlert) {
+			Button("İptal".localized, role: .cancel) {}
+			Button("Sil".localized, role: .destructive) {
                 Task {
                     await viewModel.deleteGoal(goal)
                     dismiss()
                 }
             }
         } message: {
-            Text("Bu hedefi silmek istediğinizden emin misiniz?")
+			Text("Bu hedefi silmek istediğinizden emin misiniz?".localized)
         }
     }
 }
@@ -99,7 +111,7 @@ struct GoalProgressCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Label(goal.category.rawValue, systemImage: goal.category.icon)
+				Label(goal.category.localizedName, systemImage: goal.category.icon)
                     .font(.headline)
                 Spacer()
                 Text(goal.targetAmount.currencyFormat())
@@ -112,7 +124,7 @@ struct GoalProgressCard: View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Biriken")
+					Text("Biriken".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(goal.currentAmount.currencyFormat())
@@ -121,7 +133,7 @@ struct GoalProgressCard: View {
                 Spacer()
                 
                 VStack(alignment: .trailing) {
-                    Text("Kalan")
+					Text("Kalan".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(goal.remainingAmount.currencyFormat())
@@ -140,13 +152,13 @@ struct GoalDetailsCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Detaylar")
+			Text("Detaylar".localized)
                 .font(.headline)
             
-            DetailRow(title: "Hedef Tipi", value: goal.type.rawValue)
-            DetailRow(title: "Son Tarih", value: goal.deadline.formatted(date: .long, time: .omitted))
-            DetailRow(title: "Kalan Süre", value: "\(goal.remainingDays) gün")
-            DetailRow(title: "İlerleme", value: "%\(Int(goal.progress))")
+			DetailRow(title: "Hedef Tipi".localized, value: goal.type.localizedName)
+			DetailRow(title: "Son Tarih".localized, value: goal.deadline.formatted(date: .long, time: .omitted))
+			DetailRow(title: "Kalan Süre".localized, value: "\(goal.remainingDays) Gün".localized)
+			DetailRow(title: "İlerleme".localized, value: "%\(Int(goal.progress))".localized)
         }
         .padding()
         .background(Color(.systemBackground))
@@ -160,11 +172,11 @@ struct MonthlyTargetCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Aylık Hedef")
+			Text("Aylık Hedef".localized)
                 .font(.headline)
             
             HStack {
-                Text("Aylık Birikim Hedefi")
+				Text("Aylık Birikim Hedefi".localized)
                 Spacer()
                 Text(goal.monthlyTargetAmount.currencyFormat())
                     .bold()
@@ -182,22 +194,22 @@ struct GoalProgressChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("İlerleme Grafiği")
+			Text("İlerleme Grafiği".localized)
                 .font(.headline)
             
             Chart {
                 BarMark(
-                    x: .value("İlerleme", goal.currentAmount),
-                    y: .value("", "İlerleme")
+					x: .value("İlerleme".localized, goal.currentAmount),
+					y: .value("", "İlerleme".localized)
                 )
                 .foregroundStyle(.blue)
                 
                 RuleMark(
-                    x: .value("Hedef", goal.targetAmount)
+					x: .value("Hedef".localized, goal.targetAmount)
                 )
                 .foregroundStyle(.red)
                 .annotation(position: .top) {
-                    Text("Hedef")
+					Text("Hedef".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -216,7 +228,7 @@ struct NotesCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Notlar")
+			Text("Notlar".localized)
                 .font(.headline)
             
             Text(notes)
@@ -256,22 +268,22 @@ struct UpdateProgressView: View {
                 Section {
                     HStack {
                         Text("")
-                        TextField("Mevcut Birikim", value: $currentAmount, format: .number)
+						TextField("Mevcut Birikim".localized, value: $currentAmount, format: .number)
                             .keyboardType(.decimalPad)
                     }
                 }
             }
-            .navigationTitle("İlerleme Güncelle")
+			.navigationTitle("İlerleme Güncelle".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
+					Button("İptal".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kaydet") {
+					Button("Kaydet".localized) {
                         Task {
                             await viewModel.updateProgress(goal, amount: currentAmount)
                             dismiss()

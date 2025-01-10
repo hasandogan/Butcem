@@ -17,7 +17,7 @@ struct AddFamilyTransactionView: View {
                 note: $note,
                 onAdd: addTransaction
             )
-            .navigationTitle("Harcama Ekle")
+			.navigationTitle("Harcama Ekle".localized)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     CancelButton(dismiss: dismiss)
@@ -36,30 +36,18 @@ struct AddFamilyTransactionView: View {
         guard let amount = Double(amount) else { return }
         
         let familyTransaction = FamilyTransaction(
-            userId: AuthManager.shared.currentUserId ?? "",
+            userId: AuthManager.shared.currentUserId,
             amount: amount,
-            memberName: AuthManager.shared.currentUserName ?? "",
-            memberEmail: AuthManager.shared.currentEmail ?? "",
+            memberName: AuthManager.shared.currentUserName,
             category: selectedCategory,
             date: Date(),
             note: note.isEmpty ? nil : note,
             createdAt: Date()
         )
         
-        let personalTransaction = Transaction(
-            userId: AuthManager.shared.currentUserId ?? "",
-            amount: amount,
-            category: selectedCategory.toPersonalCategory(),
-            type: .expense,
-            date: Date(),
-            note: note.isEmpty ? nil : "\(budget.name): \(note ?? "")",
-            createdAt: Date()
-        )
-        
         Task {
             do {
-                try await viewModel.addFamilyTransaction(familyTransaction, toBudget: budget)
-                try await FirebaseService.shared.addTransaction(personalTransaction)
+                try await viewModel.addTransaction(familyTransaction)
                 dismiss()
             } catch {
                 print("Transaction error: \(error)")
@@ -77,7 +65,7 @@ private struct TransactionFormContent: View {
     
     var body: some View {
         Form {
-            Section(header: Text("Harcama Detayları")) {
+			Section(header: Text("Harcama Detayları".localized)) {
                 TextField("Tutar", text: $amount)
                     .keyboardType(.decimalPad)
                 
@@ -93,9 +81,9 @@ private struct CategoryPicker: View {
     @Binding var selectedCategory: FamilyBudgetCategory
     
     var body: some View {
-        Picker("Kategori", selection: $selectedCategory) {
-            ForEach(FamilyBudgetCategory.allCases, id: \.self) { category in
-                Label(category.rawValue, systemImage: category.icon)
+		Picker("Kategori".localized, selection: $selectedCategory) {
+			ForEach(FamilyBudgetCategory.allCases, id: \.self) { category in
+                Label(category.localizedName, systemImage: category.icon)
                     .foregroundColor(category.color)
                     .tag(category)
             }
@@ -107,7 +95,7 @@ private struct CancelButton: View {
     let dismiss: DismissAction
     
     var body: some View {
-        Button("İptal") {
+		Button("İptal".localized) {
             dismiss()
         }
     }
@@ -118,7 +106,7 @@ private struct AddButton: View {
     let action: () -> Void
     
     var body: some View {
-        Button("Ekle", action: action)
+		Button("Ekle".localized, action: action)
             .disabled(isDisabled)
     }
 } 

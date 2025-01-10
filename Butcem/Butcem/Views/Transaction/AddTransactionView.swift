@@ -14,17 +14,17 @@ struct AddTransactionView: View {
         NavigationView {
             Form {
                 // Tutar
-                Section(header: Text("Tutar")) {
+				Section(header: Text("Tutar".localized)) {
                     TextField("0.00", value: $viewModel.amount, format: .currency(code: "TRY"))
                         .keyboardType(.decimalPad)
                 }
                 
                 // Kategori
-                Section(header: Text("Kategori")) {
-                    Picker("Kategori", selection: $viewModel.category) {
+				Section(header: Text("Kategori".localized)) {
+					Picker("Kategori".localized, selection: $viewModel.category) {
                         ForEach(viewModel.availableCategories, id: \.self) { category in
                             Label(
-                                category.rawValue,
+                                category.localizedName,
                                 systemImage: category.icon
                             )
                             .foregroundColor(category.color)
@@ -34,30 +34,30 @@ struct AddTransactionView: View {
                 }
                 
                 // Tarih
-                Section(header: Text("Tarih")) {
+				Section(header: Text("Tarih".localized)) {
                     DatePicker(
-                        "Tarih",
+						"Tarih".localized,
                         selection: $viewModel.date,
                         displayedComponents: [.date]
                     )
                 }
                 
                 // Not
-                Section(header: Text("Not")) {
-                    TextField("Not ekle", text: $viewModel.note)
+				Section(header: Text("Not".localized)) {
+					TextField("Not ekle".localized, text: $viewModel.note)
                 }
             }
-            .navigationTitle(initialType == .income ? "Gelir Ekle" : "Gider Ekle")
+			.navigationTitle(initialType == .income ? "Gelir Ekle".localized : "Gider Ekle".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
+					Button("İptal".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kaydet") {
+					Button("Kaydet".localized) {
                         Task {
                             if await viewModel.saveTransaction() {
                                 dismiss()

@@ -27,7 +27,7 @@ struct SetFamilyCategoryLimitsView: View {
                         .foregroundColor(remainingBudget < 0 ? .red : .secondary)
                 }
                 
-                Section(header: Text("Kategori Limitleri")) {
+				Section(header: Text("Kategori Limitleri".localized)) {
                     ForEach(FamilyBudgetCategory.allCases, id: \.self) { category in
                         FamilyCategoryLimitRow(
                             category: category,
@@ -37,26 +37,26 @@ struct SetFamilyCategoryLimitsView: View {
                     }
                 }
             }
-            .navigationTitle("Kategori Limitleri")
+			.navigationTitle("Kategori Limitleri".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
+					Button("İptal".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kaydet") {
+					Button("Kaydet".localized) {
                         saveLimits()
                     }
                     .disabled(remainingBudget < 0)
                 }
             }
-            .alert("Hata", isPresented: $showingError) {
-                Button("Tamam", role: .cancel) {}
+			.alert("Hata".localized, isPresented: $showingError) {
+				Button("Tamam".localized, role: .cancel) {}
             } message: {
-                Text("Kategori limitleri toplamı bütçeyi aşamaz")
+				Text("Kategori limitleri toplamı bütçeyi aşamaz".localized)
             }
         }
     }
@@ -109,9 +109,9 @@ struct FamilyCategoryLimitRow: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                Label(category.rawValue, systemImage: category.icon)
+				Label(category.localizedName, systemImage: category.icon)
                 Spacer()
-                TextField("Limit", value: $limit, format: .currency(code: "TRY"))
+				TextField("Limit".localized, value: $limit, format: .currency(code: "TRY"))
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
             }

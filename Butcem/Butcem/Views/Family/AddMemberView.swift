@@ -2,71 +2,42 @@ import SwiftUI
 
 struct AddMemberView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var email: String
+    @State private var sharingCode = ""
     @ObservedObject var viewModel: FamilyBudgetViewModel
-    let onAdd: (String) -> Void
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                // Üye Ekleme Formu
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Yeni Üye Ekle")
-                        .font(.headline)
-                    
-                    HStack {
-                        TextField("E-posta", text: $email)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .autocapitalization(.none)
-                            .keyboardType(.emailAddress)
-                        
-                        Button {
-                            onAdd(email)
-                            email = ""
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.green)
-                        }
-                        .disabled(email.isEmpty)
-                    }
+            Form {
+                Section {
+                    TextField("Paylaşım Kodu", text: $sharingCode)
+                        .autocapitalization(.none)
                 }
-                .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
                 
-                // Mevcut Üyeler Listesi
-                if let budget = viewModel.currentBudget {
-                    List {
-                        Section(header: Text("Mevcut Üyeler")) {
-                            ForEach(budget.members) { member in
-                                MemberRow(member: member)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        Button(role: .destructive) {
-                                            Task {
-                                                do {
-                                                    try await viewModel.removeMember(member.email)
-                                                } catch {
-                                                    print("Failed to remove member: \(error.localizedDescription)")
-                                                }
-                                            }
-                                        } label: {
-                                            Label("Sil", systemImage: "trash")
-                                        }
-                                    }
-                            }
-                        }
+                Section {
+                    Button("Üye Ekle") {
+                        addMember()
                     }
-                    .listStyle(InsetGroupedListStyle())
+                    .disabled(sharingCode.isEmpty)
                 }
             }
-            .padding(.top)
-            .navigationTitle("Üyeler")
+            .navigationTitle("Üye Ekle")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kapat") {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("İptal") {
                         dismiss()
                     }
                 }
+            }
+        }
+    }
+    
+    private func addMember() {
+        Task {
+            do {
+                try await viewModel.addMember(withCode: sharingCode)
+                dismiss()
+            } catch {
+                print("Failed to add member: \(error)")
             }
         }
     }

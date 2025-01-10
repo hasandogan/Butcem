@@ -3,7 +3,7 @@ import FirebaseFirestore
 
 struct Transaction: Identifiable, Codable {
     var id: String?
-    let userId: String
+    var userId: String
     let amount: Double
     let category: Category
     let type: TransactionType

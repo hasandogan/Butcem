@@ -151,7 +151,7 @@ struct SpendingDistributionChart: View {
                         Circle()
                             .fill(category.color)
                             .frame(width: 8, height: 8)
-                        Text(category.rawValue)
+						Text(category.localizedName)
                             .font(.caption)
                         Spacer()
                         Text(amount.currencyFormat())
@@ -174,13 +174,13 @@ struct MemberSpendingList: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Üye Harcamaları")
+            Text("Üye Harcamaları".localized)
                 .font(.headline)
             
             ForEach(sortedMembers, id: \.id) { member in
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(member.name.isEmpty ? member.email : member.name)
+                        Text(member.name)
                             .font(.subheadline)
                         Text(member.role.rawValue)
                             .font(.caption)
@@ -193,7 +193,6 @@ struct MemberSpendingList: View {
                         .fontWeight(.medium)
                 }
                 
-                // İlerleme çubuğu
                 ProgressView(
                     value: member.spentAmount,
                     total: budget.totalBudget

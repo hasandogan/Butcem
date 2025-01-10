@@ -11,9 +11,9 @@ struct AnalyticsView: View {
         ScrollView {
             VStack(spacing: 16) {
                 // Dönem Seçici
-                Picker("Dönem", selection: $selectedPeriod) {
+				Picker("Dönem".localized, selection: $selectedPeriod) {
                     ForEach(AnalysisPeriod.allCases, id: \.self) { period in
-                        Text(period.rawValue).tag(period)
+                        Text(period.description).tag(period)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -22,23 +22,50 @@ struct AnalyticsView: View {
                     viewModel.updatePeriod(selectedPeriod)
                 }
                 
-                // Gelişmiş Analiz Butonu
-                NavigationLink {
-                    if subscriptionManager.canAccessAdvancedAnalytics {
-                        AdvancedAnalyticsView()
-                    } else {
-                        PremiumView()
+                // Trend Grafiği
+                VStack(alignment: .leading, spacing: 12) {
+					Text("Harcama Trendi".localized)
+                        .font(.headline)
+                    
+                    Chart {
+                        ForEach(viewModel.monthlyTrends) { trend in
+                            LineMark(
+                                x: .value("Ay", trend.month),
+                                y: .value("Tutar", trend.amount)
+                            )
+                            .foregroundStyle(Color.accentColor)
+                            
+                            AreaMark(
+                                x: .value("Ay", trend.month),
+                                y: .value("Tutar", trend.amount)
+                            )
+                            .foregroundStyle(
+                                .linearGradient(
+                                    colors: [.accentColor.opacity(0.3), .clear],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        }
                     }
-                } label: {
-                    HStack {
-                        Image(systemName: "chart.xyaxis.line")
-                        Text("Gelişmiş Analiz")
-                        Spacer()
-                        if !subscriptionManager.canAccessAdvancedAnalytics {
-                            Image(systemName: "crown.fill")
-                                .foregroundColor(.yellow)
-                        } else {
-                            Image(systemName: "chevron.right")
+                    .frame(height: 200)
+                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(radius: 2)
+                
+                // Kategori Dağılımı
+				AnalyticsCategoryPieChart(data: viewModel.periodData)
+                
+                // Kategori Karşılaştırması
+                if !viewModel.categoryComparisons.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+						Text("Kategori Karşılaştırması".localized)
+                            .font(.headline)
+                        
+                        ForEach(viewModel.categoryComparisons) { comparison in
+                            CategoryComparisonRow(comparison: comparison)
                         }
                     }
                     .padding()
@@ -46,60 +73,65 @@ struct AnalyticsView: View {
                     .cornerRadius(12)
                     .shadow(radius: 2)
                 }
-                .padding(.horizontal)
-                
-                // Grafikler
-                ZStack {
-                    VStack(spacing: 16) {
-                        IncomeExpenseChart(data: viewModel.periodData)
-                        CategoryPieChart(data: viewModel.categoryData)
-                        TrendChart(data: viewModel.trendData)
-                        SavingsRateCard(rate: viewModel.savingsRate)
-                    }
-                    
-                    if subscriptionManager.currentTier == .basic {
-                        // Bulanık overlay
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .overlay {
-                                VStack(spacing: 12) {
-                                    Image(systemName: "crown.fill")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.yellow)
-                                    
-                                    Text("Premium Özellik")
-                                        .font(.headline)
-                                    
-                                    Text("Detaylı analiz ve raporlara erişmek için Premium'a yükseltin")
-                                        .font(.subheadline)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.secondary)
-                                    
-                                    Button("Premium'a Yükselt") {
-										showingPremium = true
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                    .padding(.top)
-                                }
-                                .padding()
-                                .background(Color(.systemBackground))
-                                .cornerRadius(12)
-                                .shadow(radius: 5)
-                                .padding()
-                            }
-                    }
-                }
             }
             .padding(.vertical)
         }
-        .navigationTitle("Analiz")
+		.navigationTitle("Analiz".localized)
         .navigationBarTitleDisplayMode(.inline)
         .background(Color(.systemGroupedBackground))
         .sheet(isPresented: $showingPremium) {
             PremiumView()
         }
-        .navigationDestination(isPresented: $viewModel.showAdvancedAnalytics) {
-            AdvancedAnalyticsView()
+    }
+}
+
+struct CategoryComparisonRow: View {
+    let comparison: CategoryComparison
+    
+    private var changePercentage: Double {
+        guard comparison.previousAmount > 0 else { return 0 }
+        return ((comparison.currentAmount - comparison.previousAmount) / comparison.previousAmount) * 100
+    }
+    
+    var body: some View {
+        HStack {
+            Label(comparison.category.localizedName, systemImage: comparison.category.icon)
+            Spacer()
+            VStack(alignment: .trailing) {
+                Text(comparison.currentAmount.currencyFormat())
+                HStack {
+                    Image(systemName: changePercentage >= 0 ? "arrow.up.right" : "arrow.down.right")
+                    Text("\(abs(changePercentage), specifier: "%.1f")%")
+                }
+                .foregroundColor(changePercentage >= 0 ? .red : .green)
+                .font(.caption)
+            }
         }
+        .padding(.vertical, 4)
+    }
+}
+
+struct AnalyticsCategoryPieChart: View {
+    let data: [AnalyticstcsCategorySpending]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+			Text("Kategori Dağılımı".localized)
+                .font(.headline)
+            
+            ForEach(data) { item in
+                HStack {
+                    Label(item.category.localizedName, systemImage: item.category.icon)
+                    Spacer()
+                    Text(item.amount.currencyFormat())
+                    Text("(\(Int(item.percentage))%)")
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
     }
 }

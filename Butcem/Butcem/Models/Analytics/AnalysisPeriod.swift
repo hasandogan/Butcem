@@ -14,7 +14,15 @@ enum AnalysisPeriod: String, CaseIterable {
 		case .yearly: return .year
 		}
 	}
-	
+	var description: String {
+		switch self {
+		case .weekly: return "Her hafta".localized
+		case .monthly: return "Her ay".localized
+		case .quarterly: return "3 Aylık".localized
+		case .yearly: return "Her yıl".localized
+		}
+	}
+
 	var dateRange: DateComponents {
 		switch self {
 		case .weekly:

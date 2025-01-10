@@ -3,119 +3,146 @@ import FirebaseFirestore
 
 @MainActor
 class AnalyticsViewModel: ObservableObject {
-    @Published private(set) var periodData: [(date: Date, income: Double, expense: Double)] = []
-    @Published private(set) var categoryData: [(category: Category, amount: Double, percentage: Double)] = []
-    @Published private(set) var trendData: [(date: Date, value: Double)] = []
-    @Published private(set) var savingsRate: Double = 0
+    @Published private(set) var monthlyTrends: [MonthlyTrend] = []
+    @Published private(set) var categoryComparisons: [CategoryComparison] = []
+    @Published private(set) var isLoading = false
+    @Published var errorMessage: String?
     @Published var showAdvancedAnalytics = false
+	@Published private(set) var periodData: [AnalyticstcsCategorySpending] = []
     
-    private let transactionStore: TransactionStoreProtocol
     private var currentPeriod: AnalysisPeriod = .monthly
+    private let firebaseService = FirebaseService.shared
     
-    init(transactionStore: TransactionStoreProtocol = TransactionStore.shared) {
-        self.transactionStore = transactionStore
-        setupObservers()
-        calculateAnalytics()
-    }
-    
-    private func setupObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleTransactionsUpdate),
-            name: .transactionsDidUpdate,
-            object: nil
-        )
-    }
-    
-    @objc private func handleTransactionsUpdate() {
-        calculateAnalytics()
+    init() {
+        Task {
+            await loadData()
+        }
     }
     
     func updatePeriod(_ period: AnalysisPeriod) {
         currentPeriod = period
-        calculateAnalytics()
+        Task {
+            await loadData()
+        }
     }
     
-    private func calculateAnalytics() {
-        let startDate = Calendar.current.date(byAdding: currentPeriod.dateRange, to: Date()) ?? Date()
-        let transactions = transactionStore.transactions.filter { $0.date >= startDate }
+    func loadData() async {
+        isLoading = true
+        defer { isLoading = false }
         
-        calculatePeriodData(transactions)
-        calculateCategoryData(transactions)
-        calculateTrendData(transactions)
-        calculateSavingsRate(transactions)
+        do {
+            let transactions = try await firebaseService.getTransactions()
+            processTransactions(transactions)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
     
-    private func calculatePeriodData(_ transactions: [Transaction]) {
-        var result: [(date: Date, income: Double, expense: Double)] = []
+    private func processTransactions(_ transactions: [Transaction]) {
         let calendar = Calendar.current
+        let now = Date()
         
-        // Dönem başlangıcından bugüne kadar olan günleri grupla
-        let groupedTransactions = Dictionary(grouping: transactions) { transaction in
-            calendar.startOfDay(for: transaction.date)
+        // Seçilen periyoda göre başlangıç tarihini belirle
+        let startDate: Date
+        switch currentPeriod {
+        case .weekly:
+            startDate = calendar.date(byAdding: .weekOfYear, value: -12, to: now) ?? now
+        case .monthly:
+            startDate = calendar.date(byAdding: .month, value: -12, to: now) ?? now
+        case .quarterly:
+            startDate = calendar.date(byAdding: .month, value: -12, to: now) ?? now
+        case .yearly:
+            startDate = calendar.date(byAdding: .year, value: -3, to: now) ?? now
         }
         
-        // Her gün için gelir ve giderleri hesapla
-        let sortedDates = groupedTransactions.keys.sorted()
-        for date in sortedDates {
-            let dayTransactions = groupedTransactions[date] ?? []
-            let income = dayTransactions.filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
-            let expense = dayTransactions.filter { $0.type == .expense }.reduce(0) { $0 + $1.amount }
-            result.append((date: date, income: income, expense: expense))
+        // Filtrelenmiş işlemler
+        let filteredTransactions = transactions.filter { $0.date >= startDate }
+        
+        // Aylık trendleri hesapla
+        var trends: [String: Double] = [:]
+        var monthlyTransactions: [String: [Transaction]] = [:]
+        
+        for transaction in filteredTransactions {
+            let monthKey = formatDateKey(transaction.date)
+            trends[monthKey, default: 0] += transaction.type == .expense ? transaction.amount : 0
+            monthlyTransactions[monthKey, default: []].append(transaction)
         }
         
-        periodData = result
-    }
-    
-    private func calculateCategoryData(_ transactions: [Transaction]) {
-        let expenses = transactions.filter { $0.type == .expense }
-        var categoryAmounts: [Category: Double] = [:]
+        // Trendleri sırala ve MonthlyTrend dizisine dönüştür
+        monthlyTrends = trends.map { MonthlyTrend(month: $0.key, amount: $0.value) }
+            .sorted { $0.month < $1.month }
         
-        // Kategori bazlı toplam harcamaları hesapla
-        expenses.forEach { transaction in
-            categoryAmounts[transaction.category, default: 0] += transaction.amount
+        // Kategori karşılaştırmalarını hesapla
+        if let lastMonth = monthlyTransactions[formatDateKey(now)],
+           let previousMonth = monthlyTransactions[formatDateKey(calendar.date(byAdding: .month, value: -1, to: now) ?? now)] {
+            
+            var comparisons: [CategoryComparison] = []
+            
+            for category in Category.expenseCategories {
+                let currentAmount = lastMonth
+                    .filter { $0.category == category && $0.type == .expense }
+                    .reduce(0) { $0 + $1.amount }
+                
+                let previousAmount = previousMonth
+                    .filter { $0.category == category && $0.type == .expense }
+                    .reduce(0) { $0 + $1.amount }
+                
+                if currentAmount > 0 || previousAmount > 0 {
+                    comparisons.append(CategoryComparison(
+                        category: category,
+                        currentAmount: currentAmount,
+                        previousAmount: previousAmount
+                    ))
+                }
+            }
+            
+            categoryComparisons = comparisons.sorted { $0.currentAmount > $1.currentAmount }
         }
         
-        let totalExpense = expenses.reduce(0) { $0 + $1.amount }
+        // Dönem verilerini hesapla
+        var categorySpending: [Category: Double] = [:]
+        let totalSpending = filteredTransactions
+            .filter { $0.type == .expense }
+            .reduce(0) { $0 + $1.amount }
         
-        // Yüzdeleri hesapla ve sırala
-        categoryData = categoryAmounts.map { category, amount in
-            (
+        for transaction in filteredTransactions where transaction.type == .expense {
+            categorySpending[transaction.category, default: 0] += transaction.amount
+        }
+        
+        // CategorySpending dizisini oluştur
+        periodData = categorySpending.map { category, amount in
+            let percentage = totalSpending > 0 ? (amount / totalSpending) * 100 : 0
+            return AnalyticstcsCategorySpending(
                 category: category,
                 amount: amount,
-                percentage: totalExpense > 0 ? (amount / totalExpense) * 100 : 0
+                percentage: percentage
             )
         }.sorted { $0.amount > $1.amount }
     }
     
-    private func calculateTrendData(_ transactions: [Transaction]) {
-        var result: [(date: Date, value: Double)] = []
-        let calendar = Calendar.current
+    private func formatDateKey(_ date: Date) -> String {
+        let formatter = DateFormatter()
         
-        // Günlük toplam harcamaları hesapla
-        let groupedTransactions = Dictionary(grouping: transactions) { transaction in
-            calendar.startOfDay(for: transaction.date)
+        switch currentPeriod {
+        case .weekly:
+            formatter.dateFormat = "'Hafta' w, MMM yyyy"
+        case .monthly:
+            formatter.dateFormat = "MMM yyyy"
+        case .quarterly:
+            let quarter = Calendar.current.component(.quarter, from: date)
+            formatter.dateFormat = "yyyy"
+            return "Q\(quarter) " + formatter.string(from: date)
+        case .yearly:
+            formatter.dateFormat = "yyyy"
         }
         
-        // Her gün için toplam harcamayı hesapla
-        let sortedDates = groupedTransactions.keys.sorted()
-        for date in sortedDates {
-            let dayExpenses = groupedTransactions[date]?
-                .filter { $0.type == .expense }
-                .reduce(0) { $0 + $1.amount } ?? 0
-            result.append((date: date, value: dayExpenses))
-        }
-        
-        trendData = result
+        return formatter.string(from: date)
     }
-    
-    private func calculateSavingsRate(_ transactions: [Transaction]) {
-        let income = transactions.filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
-        let expense = transactions.filter { $0.type == .expense }.reduce(0) { $0 + $1.amount }
-        savingsRate = income > 0 ? ((income - expense) / income) * 100 : 0
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
+}
+
+struct AnalyticstcsCategorySpending: Identifiable {
+    let id = UUID()
+    let category: Category
+    let amount: Double
+    let percentage: Double
 } 

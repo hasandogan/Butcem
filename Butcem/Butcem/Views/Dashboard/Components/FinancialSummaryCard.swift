@@ -7,12 +7,12 @@ struct FinancialSummaryCard: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            Text("Aylık Özet")
+			Text("Aylık Özet".localized)
                 .font(.headline)
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Gelir")
+					Text("Gelir".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(totalIncome.currencyFormat())
@@ -22,7 +22,7 @@ struct FinancialSummaryCard: View {
                 Spacer()
                 
                 VStack(alignment: .trailing) {
-                    Text("Gider")
+					Text("Gider".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(totalExpense.currencyFormat())
@@ -33,7 +33,7 @@ struct FinancialSummaryCard: View {
             Divider()
             
             HStack {
-                Text("Net Durum")
+				Text("Net Durum".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()

@@ -8,7 +8,7 @@ struct InviteMemberView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Üye Davet Et")) {
+				Section(header: Text("Üye Davet Et".localized)) {
                     TextField("E-posta", text: $email)
                         .autocapitalization(.none)
                         .keyboardType(.emailAddress)
@@ -18,15 +18,15 @@ struct InviteMemberView: View {
                     onInvite(email)
                     dismiss()
                 } label: {
-                    Text("Davet Gönder")
+					Text("Davet Gönder".localized)
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(email.isEmpty)
             }
-            .navigationTitle("Üye Davet Et")
+			.navigationTitle("Üye Davet Et".localized)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kapat") {
+					Button("Kapat".localized) {
                         dismiss()
                     }
                 }

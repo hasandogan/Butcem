@@ -5,11 +5,11 @@ struct CategoryBudgetList: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Kategori Limitleri")
+			Text("Kategori Limitleri".localized)
                 .font(.headline)
             
             if limits.isEmpty {
-                Text("Henüz kategori limiti belirlenmemiş")
+				Text("Henüz kategori limiti belirlenmemiş".localized)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding()

@@ -5,7 +5,7 @@ struct SavingsRateCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Tasarruf Oranı")
+			Text("Tasarruf Oranı".localized)
                 .font(.headline)
             
             HStack {

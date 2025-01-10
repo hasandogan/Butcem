@@ -5,11 +5,11 @@ struct CategorySpendingSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Kategori Harcamaları")
+			Text("Kategori Harcamaları".localized)
                 .font(.headline)
             
             if limits.isEmpty {
-                Text("Henüz kategori limiti belirlenmemiş")
+				Text("Henüz kategori limiti belirlenmemiş".localized)
                     .foregroundColor(.secondary)
             } else {
                 ForEach(limits) { limit in

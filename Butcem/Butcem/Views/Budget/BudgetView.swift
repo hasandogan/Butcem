@@ -29,14 +29,14 @@ struct BudgetView: View {
                             .font(.system(size: 50))
                             .foregroundColor(.secondary)
                         
-                        Text("Henüz bütçe belirlenmemiş")
+						Text("Henüz bütçe belirlenmemiş".localized)
                             .font(.headline)
                             .foregroundColor(.secondary)
                         
                         Button {
                             showingSetBudget = true
                         } label: {
-                            Text("Bütçe Belirle")
+							Text("Bütçe Belirle".localized)
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .padding()
@@ -54,12 +54,6 @@ struct BudgetView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if viewModel.budget != nil {
                     Menu {
-                        NavigationLink {
-                            BudgetHistoryView(viewModel: viewModel)
-                        } label: {
-                            Label("Geçmiş Bütçeler", systemImage: "clock.arrow.circlepath")
-                        }
-                        
                         Button {
                             showingSetBudget = true
                         } label: {
@@ -88,10 +82,10 @@ struct BudgetView: View {
                 }
             }
         } message: {
-            Text("Bu bütçeyi silmek istediğinizden emin misiniz?")
+			Text("Bu bütçeyi silmek istediğinizden emin misiniz?".localized)
         }
-        .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("Tamam") {
+		.alert("Hata".localized, isPresented: .constant(viewModel.errorMessage != nil)) {
+			Button("Tamam".localized) {
                 viewModel.clearError()
             }
         } message: {

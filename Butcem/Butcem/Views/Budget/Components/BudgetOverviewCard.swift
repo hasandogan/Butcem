@@ -7,7 +7,7 @@ struct BudgetOverviewCard: View {
         VStack(spacing: 16) {
             // Başlık
             HStack {
-                Text("Aylık Bütçe")
+				Text("Aylık Bütçe".localized)
                     .font(.headline)
                 Spacer()
                 Text(budget.month.monthYearString())
@@ -17,21 +17,21 @@ struct BudgetOverviewCard: View {
             // Bütçe Durumu
             VStack(spacing: 8) {
                 HStack {
-                    Text("Toplam Bütçe:")
+					Text("Toplam Bütçe:".localized)
                     Spacer()
                     Text(budget.amount.currencyFormat())
                         .bold()
                 }
                 
                 HStack {
-                    Text("Harcanan:")
+					Text("Harcanan:".localized)
                     Spacer()
                     Text(budget.spentAmount.currencyFormat())
                         .foregroundColor(.red)
                 }
                 
                 HStack {
-                    Text("Kalan:")
+					Text("Kalan:".localized)
                     Spacer()
                     Text(budget.remainingAmount.currencyFormat())
                         .foregroundColor(.green)
@@ -43,7 +43,7 @@ struct BudgetOverviewCard: View {
                 .tint(budget.spentPercentage >= 90 ? .red : .blue)
                 .padding(.vertical, 4)
             
-            Text("\(budget.spentPercentage.percentFormat()) kullanıldı")
+			Text("\(budget.spentPercentage.percentFormat()) kullanıldı")
                 .font(.caption)
                 .foregroundColor(budget.spentPercentage >= 90 ? .red : .secondary)
         }

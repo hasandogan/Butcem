@@ -34,11 +34,9 @@
 	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>remote-notification</string>
 		<string>fetch</string>
 		<string>processing</string>
-		<string>background-fetch</string>
-		<string>background-processing</string>
+		<string>remote-notification</string>
 	</array>
 	<key>NSNotificationUsageDescription</key>
 	<string>Hatırlatıcılar ve bütçe uyarıları için bildirim izni gereklidir.</string>
@@ -53,28 +51,24 @@
 	<true/>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.butcem.notification.refresh</string>
-		<string>com.butcem.notification.processing</string>
+		<string>com.butcem.app.recurring-transaction-processing</string>
+		<string>com.butcem.app.notification.refresh</string>
+		<string>com.butcem.app.notification.processing</string>
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<true/>
 	<key>FirebaseAppTransportCCLEnabled</key>
+	<true/>
+	<key>FirebaseStorageEnabled</key>
 	<true/>
 	<key>aps-environment</key>
 	<string>development</string>
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
-	<key>UIUserNotificationSettings</key>
-	<dict>
-		<key>UIUserNotificationTypes</key>
-		<integer>7</integer>
-	</dict>
 	<key>NSUserNotificationUsageDescription</key>
 	<string>Hatırlatıcılarınız için bildirim göndermemize izin verin.</string>
-	<key>UIBackgroundFetchInterval</key>
-	<integer>60</integer>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -84,20 +78,22 @@
 	<true/>
 	<key>UIRequiresFullScreen</key>
 	<true/>
-	<key>UIApplicationExitsOnSuspend</key>
-	<false/>
 	<key>CFBundleIdentifier</key>
 	<string>com.butcem.app</string>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>com.butcem.app.notification.refresh</string>
-		<string>com.butcem.app.notification.processing</string>
-	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Arka plan görevleri için konum izni gereklidir</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Arka plan görevleri için konum izni gereklidir</string>
-	<key>UIBackgroundFetchIntervalMinimum</key>
-	<integer>60</integer>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>tr</string>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Fatura taramak için kameraya erişim izni gerekiyor.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Fatura fotoğraflarına erişmek için galeriye erişim izni gerekiyor.</string>
 </dict>
 </plist>

@@ -1,8 +1,530 @@
-/* 
-  Localizable.strings
-  Butcem
+// MARK: - Common
+"İptal" = "Cancel";
+"Kaydet" = "Save";
+"Sil" = "Delete";
+"Düzenle" = "Edit";
+"Tamam" = "Done";
+"Hata" = "Error";
+"Başarılı" = "Success";
+"Uyarı" = "Warning";
+"Yükleniyor..." = "Loading...";
+"Tümü" = "All";
+"Aktif" = "Active";
+"Tamamlandı" = "Completed";
+"Not" = "Note";
+"Not ekle" = "Add Note";
+"Kategori" = "Category";
+"Tutar" = "Amount";
+"Tarih" = "Date";
+"Tür" = "Type";
+"Sıklık" = "Frequency";
+"Durum" = "Status";
 
-  Created by hasan doğan on 6.01.2025.
-  
-*/
-"Ana Sayfa" = "Home";
+// MARK: - Auth
+"Giriş Yap" = "Sign In";
+"Kayıt Ol" = "Sign Up";
+"Çıkış Yap" = "Sign Out";
+"E-posta" = "Email";
+"Şifre" = "Password";
+"Şifre Tekrar" = "Confirm Password";
+"Şifremi Unuttum" = "Forgot Password";
+"Şifre Sıfırla" = "Reset Password";
+"Google ile Devam Et" = "Continue with Google";
+"Apple ile Devam Et" = "Continue with Apple";
+"Giriş hatası" = "Authentication Error";
+"Geçersiz e-posta" = "Invalid Email";
+"Zayıf şifre" = "Weak Password";
+"Şifreler eşleşmiyor" = "Passwords don't match";
+
+// MARK: - Dashboard
+"Ana Sayfa" = "Dashboard";
+"Toplam Bakiye" = "Total Balance";
+"Gelir" = "Income";
+"Gider" = "Expense";
+"Aylık Özet" = "Monthly Summary";
+"Son İşlemler" = "Recent Transactions";
+"Tümünü Gör" = "See All";
+"Güven Puanı" = "Trust Score";
+"Bütçe Durumu" = "Budget Status";
+"Tasarruf Hedefi" = "Savings Goal";
+
+ 
+// MARK: - Transactions
+"İşlemler" = "Transactions";
+"İşlem Ekle" = "Add Transaction";
+"İşlem Düzenle" = "Edit Transaction";
+"İşlem Sil" = "Delete Transaction";
+"Bu işlemi silmek istediğinizden emin misiniz?" = "Are you sure you want to delete this transaction?";
+"İşlem Tarihi" = "Transaction Date";
+"İşlem Türü" = "Transaction Type";
+"İşlem Kategorisi" = "Transaction Category";
+"İşlem Tutarı" = "Transaction Amount";
+"İşlem Notu" = "Transaction Note";
+
+// MARK: - Recurring Transactions
+"Tekrarlanan İşlemler" = "Recurring Transactions";
+"Tekrarlanan İşlem Ekle" = "Add Recurring Transaction";
+"Tekrarlanan İşlem Düzenle" = "Edit Recurring Transaction";
+"Tekrarlanan İşlem Sil" = "Delete Recurring Transaction";
+"Bu tekrarlanan işlemi silmek istediğinizden emin misiniz?" = "Are you sure you want to delete this recurring transaction?";
+"Başlangıç Tarihi" = "Start Date";
+"Bitiş Tarihi" = "End Date";
+"Bitiş Tarihi Var" = "Has End Date";
+"Son İşlem" = "Last Processed";
+"Sonraki İşlem" = "Next Date";
+"Günlük" = "Daily";
+"Haftalık" = "Weekly";
+"Aylık" = "Monthly";
+"Yıllık" = "Yearly";
+
+
+// MARK: - Budget
+"Bütçe" = "Budget";
+"Bütçe Belirle" = "Set Budget";
+"Bütçe Düzenle" = "Edit Budget";
+"Kategori Limiti" = "Category Limit";
+"Kalan" = "Remaining";
+"Bütçe Aşımı" = "Over Budget";
+"Bütçe Uyarısı" = "Budget Alert";
+"Uyarı Eşiği" = "Warning Threshold";
+"Tehlike Eşiği" = "Danger Threshold";
+"Bildirimleri Etkinleştir" = "Enable Notifications";
+
+// MARK: - Categories
+"Gelir Kategorileri" = "Income Categories";
+"Gider Kategorileri" = "Expense Categories";
+"Maaş" = "Salary";
+"Yatırım" = "Investment";
+"Prim" = "Bonus";
+"Kira" = "Rent";
+"Faturalar" = "Bills";
+"Market" = "Groceries";
+"Ulaşım" = "Transportation";
+"Eğlence" = "Entertainment";
+"Sağlık" = "Health";
+"Eğitim" = "Education";
+"Alışveriş" = "Shopping";
+"Diğer" = "Other";
+
+// MARK: - Reminders
+"Hatırlatıcılar" = "Reminders";
+"Hatırlatıcı Ekle" = "Add Reminder";
+"Hatırlatıcı Düzenle" = "Edit Reminder";
+"Hatırlatıcı Sil" = "Delete Reminder";
+"Bu hatırlatıcıyı silmek istediğinizden emin misiniz?" = "Are you sure you want to delete this reminder?";
+"Vade Tarihi" = "Due Date";
+"Hatırlatıcı Başlığı" = "Reminder Title";
+"Hatırlatıcı Detayları" = "Reminder Details";
+
+// MARK: - Settings
+"Ayarlar" = "Settings";
+"Profil" = "Profile";
+"Bildirimler" = "Notifications";
+"Görünüm" = "Appearance";
+"Dil" = "Language";
+"Para Birimi" = "Currency";
+"Gizlilik" = "Privacy";
+"Yardım" = "Help";
+"Hakkında" = "About";
+"Versiyon" = "Version";
+"Uygulamayı Değerlendir" = "Rate App";
+"Uygulamayı Paylaş" = "Share App";
+"Çıkış Yap" = "Logout";
+
+// MARK: - Premium
+"Premium" = "Premium";
+"Premium'a Geç" = "Go Premium";
+"Satın Alımları Geri Yükle" = "Restore Purchases";
+"Premium Özellikler" = "Premium Features";
+"Sınırsız İşlem" = "Unlimited Transactions";
+"Gelişmiş Analitik" = "Advanced Analytics";
+"Veri Dışa Aktarma" = "Export Data";
+"Reklamsız Deneyim" = "Ad Free Experience";
+
+// MARK: - Analytics
+"Analitik" = "Analytics";
+"Kategoriye Göre Harcama" = "Spending by Category";
+"Gelir vs Gider" = "Income vs Expense";
+"Aylık Trend" = "Monthly Trend";
+"Tasarruf Oranı" = "Savings Rate";
+"Bütçe Performansı" = "Budget Performance";
+
+// MARK: - Trust Score Messages
+"Mükemmel finansal yönetim! Bütçenizi çok iyi kontrol ediyorsunuz." = "Excellent financial management! You're in great control of your budget.";
+"Çok iyi! Finansal hedeflerinize ulaşmak için doğru yoldasınız." = "Very good! You're on the right track to reach your financial goals.";
+"İyi! Bazı küçük iyileştirmelerle daha da yükselebilirsiniz." = "Good! You can improve with some minor adjustments.";
+"Orta! Bütçe yönetiminizde geliştirilmesi gereken alanlar var." = "Fair! There are areas in your budget that need attention.";
+"Geliştirilmeli! Bütçenizi daha dikkatli takip etmelisiniz." = "Needs improvement! You should monitor your budget more carefully.";
+"Dikkat! Finansal alışkanlıklarınızı gözden geçirmeniz gerekiyor." = "Warning! You need to review your financial habits.";
+
+// MARK: - Error Messages
+"Bu alan zorunludur" = "This field is required";
+"Geçersiz tutar" = "Invalid amount";
+"İnternet bağlantısı hatası" = "Network connection error";
+"Bilinmeyen bir hata oluştu" = "An unknown error occurred";
+"İzin hatası" = "Permission error";
+"Kimlik doğrulama hatası" = "Authentication error";
+"Geçersiz tarih" = "Invalid date";
+
+// MARK: - Pro Features
+"Ailenizle birlikte harcamalarınızı takip edin ve ortak bütçe oluşturun" = "Track expenses with your family and create a shared budget";
+
+// Analytics View
+"Dönem" = "Period";
+"Gelişmiş Analiz" = "Advanced Analytics";
+"Premium Özellik" = "Premium Feature";
+"Detaylı analiz ve raporlara erişmek için Premium'a yükseltin" = "Upgrade to Premium to access detailed analytics and reports";
+"Premium'a Yükselt" = "Upgrade to Premium";
+"Pro'ya Yükselt" = "Upgrade to Pro";
+
+// Analytics Components
+"Gelir/Gider Analizi" = "Income/Expense Analysis";
+"Kategori Dağılımı" = "Category Distribution";
+"Harcama Trendi" = "Spending Trend";
+"Tasarruf Oranı" = "Savings Rate";
+"Aylık Karşılaştırma" = "Monthly Comparison";
+"Veri bulunamadı" = "No data found";
+"Ay" = "Month";
+"Tür" = "Type";
+"Gelir" = "Income";
+"Gider" = "Expense";
+"Tasarruf" = "Savings";
+"Net" = "Net";
+"işlem" = "transactions";
+"Henüz harcama bulunmuyor" = "No expenses yet";
+"Henüz veri bulunmuyor" = "No data available yet";
+"Tasarruf İlerlemesi" = "Savings Progress";
+"Kategori Bazlı Harcamalar" = "Category Based Expenses";
+"Kategori Detayları" = "Category Details";
+"Toplam Harcamanın %" = "% of Total Spending";
+"Aylık Trend" = "Monthly Trend";
+
+// Advanced Analytics
+"Bu özellik Premium üyelere özeldir" = "This feature is exclusive to Premium members";
+"Harcama Trendi" = "Spending Trend";
+"Aylık Ortalama" = "Monthly Average";
+"En Yüksek Ay" = "Highest Month";
+"Kategori Karşılaştırması" = "Category Comparison";
+"Gelecek Ay Tahmini" = "Next Month Prediction";
+"Tahmini Harcama" = "Estimated Spending";
+"Tahmini Tasarruf" = "Estimated Savings";
+"Tasarruf Analizi" = "Savings Analysis";
+"Aylık Tasarruf Hedefi" = "Monthly Savings Goal";
+"tamamlandı" = "completed";
+"Tasarruf Önerileri" = "Savings Suggestions";
+"Güven:" = "Confidence:";
+"Tutar" = "Amount";
+"Kategori" = "Category";
+
+// MARK: - Models
+// RecurringTransaction Frequency
+"Bir Kez" = "Once";
+"Günlük" = "Daily";
+"Haftalık" = "Weekly";
+"Aylık" = "Monthly";
+"Yıllık" = "Yearly";
+
+// AdvancedAnalytics Trust Score Messages
+"Mükemmel finansal yönetim!" = "Excellent financial management!";
+"Bütçenizi çok iyi kontrol ediyorsunuz." = "You have great control over your budget.";
+"Finansal hedeflerinize ulaşmak için doğru yoldasınız." = "You're on the right track to reach your financial goals.";
+"Bazı küçük iyileştirmelerle daha da yükselebilirsiniz." = "You can improve with some minor adjustments.";
+"Bütçe yönetiminizde geliştirilmesi gereken alanlar var." = "There are areas in your budget that need attention.";
+"Bütçenizi daha dikkatli takip etmelisiniz." = "You should monitor your budget more carefully.";
+"Finansal alışkanlıklarınızı gözden geçirmeniz gerekiyor." = "You need to review your financial habits.";
+
+// Reminder Status
+"Hatırlatıcı oluşturuldu" = "Reminder created";
+"Hatırlatıcı güncellendi" = "Reminder updated";
+"Hatırlatıcı silindi" = "Reminder deleted";
+"Hatırlatıcı bulunamadı" = "Reminder not found";
+"Vade tarihi geçmiş" = "Past due";
+"Bugün vadesi" = "Due today";
+"Yaklaşan vade" = "Due soon";
+
+// Test Data Generator
+"Kira ödemesi" = "Rent payment";
+"Market alışverişi" = "Grocery shopping";
+"Akbil" = "Transportation card";
+"Maaş" = "Salary";
+"Netflix" = "Netflix";
+"Test hatırlatıcısı" = "Test reminder";
+"Otomatik oluşturuldu:" = "Automatically generated:";
+
+// Budget Messages
+"Bütçe limiti aşıldı" = "Budget limit exceeded";
+"Bütçe limitine yaklaşıldı" = "Approaching budget limit";
+"Kalan bütçe:" = "Remaining budget:";
+"Toplam harcama:" = "Total spending:";
+"Limit:" = "Limit:";
+
+// RecurringTransaction Description
+"Her gün" = "Every day";
+"Her hafta" = "Every week";
+"Her ay" = "Every month";
+"Her yıl" = "Every year";
+
+// Category Names
+"Kira" = "Rent";
+"Market" = "Groceries";
+"Faturalar" = "Bills";
+"Ulaşım" = "Transportation";
+"Eğlence" = "Entertainment";
+"Sağlık" = "Healthcare";
+"Eğitim" = "Education";
+"Giyim" = "Clothing";
+"Diğer" = "Other";
+"Maaş" = "Salary";
+"Yatırım" = "Investment";
+"Prim" = "Bonus";
+"Ek Gelir" = "Side Income";
+
+// Transaction Types
+"Gelir" = "Income";
+"Gider" = "Expense";
+"Tümü" = "All";
+
+// Time Periods
+"Bu Ay" = "This Month";
+"Geçen Ay" = "Last Month";
+"Son 3 Ay" = "Last 3 Months";
+"Son 6 Ay" = "Last 6 Months";
+"Bu Yıl" = "This Year";
+"Geçen Yıl" = "Last Year";
+"Özel" = "Custom";
+
+// Status Messages
+"İşlem başarılı" = "Operation successful";
+"İşlem başarısız" = "Operation failed";
+"Yükleniyor" = "Loading";
+"Kaydediliyor" = "Saving";
+"Siliniyor" = "Deleting";
+"Güncelleniyor" = "Updating";
+
+// Confirmation Messages
+"Emin misiniz?" = "Are you sure?";
+"Bu işlemi geri alamazsınız" = "This action cannot be undone";
+"İşlemi Onayla" = "Confirm Action";
+"İptal" = "Cancel";
+"Devam Et" = "Continue";
+
+// Notification Messages
+"Bildirim İzni" = "Notification Permission";
+"Bildirim izni gerekli" = "Notification permission required";
+"Bildirimleri etkinleştirmek için ayarlara gidin" = "Go to settings to enable notifications";
+"Ayarlara Git" = "Go to Settings";
+
+// Error Messages
+"Bağlantı hatası" = "Connection error";
+"Sunucu hatası" = "Server error";
+"Beklenmeyen bir hata oluştu" = "An unexpected error occurred";
+"Daha sonra tekrar deneyin" = "Please try again later";
+"Geçersiz değer" = "Invalid value";
+"Gerekli alan" = "Required field";
+"Çıktılar" = "Export";
+"Analiz" = "Analytics";
+"Hatırlatıcı" = "Reminder";
+"Aile Bütçesi" = "Family Budget";
+"Tekrarlayan İşlemler" = "Repetitive Transactions";
+"Hedefler" = "Targets";
+"Hesap" = "Account";
+"Uygulama" = "App";
+"Hesap Ayarları" = "Account Settings";
+
+"Harcama Ekle" = "Add Expense";
+"Üyeler" = "Members";
+"Limitler" = "Limits";
+"Toplam Bütçe" = "Total Budget";
+"Hızlı işlemler" = "Quick Actions";
+"Harcama Dağılımı" = "Expense Distribution";
+"Gelir Ekle" = "Add Income";
+"Gider Ekle" = "Add Expense";
+"Geçmiş Bütçeler" = "Past Budgets";
+"Kategori Harcamaları" = "Category Expenses";
+"Kategori limitleri toplamı bütçeyi aşamaz" = "The total of category limits cannot exceed the budget";
+
+"Harcanan" = "Spent";
+"Biriken" = "Accumulated";
+"Kalan" = "Remaining";
+"Dışa Aktar" = "Export";
+"Dışa Aktarma Formatı" = "Export Format";
+"Tarih Aralığı" = "Date Range";
+"Tüm Zamanlar" = "All Time";
+"Bu Ay" = "This Month";
+"Geçen Ay" = "Last Month";
+"Özel Aralık" = "Custom Range";
+
+"Hızlı İşlemler" = "Quick Actions";
+"Finansal Hedefler" = "Financial Goals";
+"Hedef Başlığı" = "Goal Title";
+"Kapat" = "Close";
+"Bütçe Oluştur" = "Create a Budget";
+"Ailenizle birlikte harcamalarınızı takip edin ve yönetin" = "Track and manage your expenses with your family";
+"Aile Bütçesi" = "Family Budget";
+"Oluşturun" = "Create";
+"Toplam" = "Total";
+"Bütçe" = "Budget";
+"Bu bütçeyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz." = "Are you sure you want to delete this budget? This action cannot be undone.";
+"Bütçeyi Sil" = "Delete Budget";
+"Bu bütçeyi silmek istediğinizden emin misiniz?" = "Are you sure you want to delete this budget?";
+"Henüz bütçe belirlenmemiş" = "No budget has been set yet";
+"Bütçe Belirle" = "Set Budget";
+"Kategori Limitleri" = "Category Limits";
+"Henüz kategori limiti belirlenmemiş" = "No category limit has been set yet";
+"Bildirim Ayarları" = "Notification Settings";
+"Toplam bütçe 0'dan büyük olmalıdır" = "The total budget must be greater than 0";
+"Bütçeyi Düzenle" = "Edit Budget";
+"Bütçe Bilgileri" = "Budget Information";
+"Bütçeyi Düzenle" = "Edit Budget";
+"Bütçe Uyarıları" = "Budget Alerts";
+
+
+"Maaş" = "Salary";
+"Kira" = "Rent";
+"Yatırım" = "Investment";
+"Faiz" = "Interest";
+"İkramiye" = "Bonus";
+"Emekli Maaşı" = "Pension";
+"Serbest Meslek" = "Freelance";
+"Diğer Gelir" = "Other Income";
+"Market" = "Shopping";
+"Ulaşım" = "Transport";
+"Faturalar" = "Bills";
+"Kira Gideri" = "Rent Expense";
+"Giyim" = "Clothing";
+"Eğlence" = "Entertainment";
+"Sağlık" = "Health";
+"Eğitim" = "Education";
+"Restoran" = "Restaurant";
+"Spor" = "Sports";
+"Teknoloji" = "Technology";
+"Tatil" = "Holiday";
+"Bakım" = "Maintenance";
+"Hediyelik" = "Gifts";
+"Ev" = "House";
+"Sigorta" = "Insurance";
+"Aidat" = "Membership";
+"Diğer Gider" = "Other Expenses";
+"Tamamlanan Hedefler" = "Completed Goals";
+"Aktif Hedefler" = "Active Goals";
+"Toplam Hedef" = "Total Goal";
+"İlerleme" = "Progress";
+"Yaklaşan Hedefler" = "Upcoming Goals";
+"İlerleme Güncelle" = "Update Progress";
+"Hedefi Sil" = "Delete Goal";
+"Bu hedefi silmek istediğinizden emin misiniz?" = "Are you sure you want to delete this goal?";
+"Aylık Birikim Hedefi" = "Monthly Savings Goal";
+"Aylık Hedef" = "Monthly Goal";
+"Son Tarih" = "Deadline";
+"Kalan Süre" = "Remaining Time";
+"Notlar" = "Notes";
+"Mevcut Birikim" = "Current Savings";
+"İlerleme Güncelle" = "Update Progress";
+"Hedef Tarihi" = "Target Time";
+"En Çok Harcanan Kategori" = "Most Expensive Category";
+"Ortalama Harcama" = "Average Spending";
+"Trend Analizi" = "Trend Analysis";
+"Bütçe Geçmişi" = "Budget History";
+"Geçmiş Bütçeler" = "Past Budgets";
+"Kalan: %@" = "Remaining: %@";
+"Toplam: %@" = "Total: %@";
+"Harcanan: %@" = "Spent: %@";
+"İlerleme: %%%d" = "Progress: %%%d";  // Yüzde işareti için %% kullanılır
+"Kategori: %@" = "Category: %@";
+"İlerleme Grafiği" = "Progress Chart";
+"Hedef" = "Goal";
+"Üye Harcamaları" = "Member Spending";
+"Mevcut Üyeler" = "Current Members";
+"Uyarı Eşiği: %%%d" = "Warning Threshold: %%%d";
+"Kritik Eşik: %%%d" = "Critical Threshold: %%%d";
+"%d gün" = "%d days";
+"%%%d" = "%%%d";
+"Net Durum" = "Net Status";
+"Hesap Kesim Günü" = "Billing Day";
+"Gizlilik Politikası" = "Privacy Policy";
+"Kullanım Koşulları" = "Terms of Use";
+"İşlem Tipi" = "Transaction Type";
+"Filtrele" = "Filter";
+"İşlem bulunamadı" = "Transaction Not Found";
+"Tekrarlama" = "Repeat";
+"İşlem Detayları" = "Transaction Details";
+"Başlangıç" = "Start";
+"Tasarruf" = "Savings";
+"Yatırım" = "Investment";
+"Borç Ödeme" = "Debt Repayment";
+"Satın Alma" = "Purchase";
+"Acil Durum Fonu" = "Emergency Fund";
+"Eğitim" = "Education";
+"Emeklilik" = "Retirement";
+"Seyahat" = "Travel";
+"Diğer" = "Other";
+"Kısa Vadeli" = "Short Term";
+"Orta Vadeli" = "Medium Term";
+"Uzun Vadeli" = "Long Term";
+"Hedef Tipi" = "Goal Type";
+"Kategori Detayları" = "Category Details";
+"Harcama Detayları" = "Expense Details";
+"3 Aylık" = "3-Month";
+"Dönem" = "Period";
+"Kira" = "Rent";
+"Aidat" = "Membership Fee";
+"Elektrik" = "Electricity";
+"Su" = "Water";
+"Doğal Gaz" = "Natural Gas";
+"İnternet" = "Internet";
+"Market" = "Market";
+"Gıda" = "Food";
+"Yakıt" = "Fuel";
+"Toplu Taşıma" = "Public Transport";
+"Okul" = "School";
+"Kurs" = "Course";
+"Kitap" = "Book";
+"Sağlık" = "Health";
+"İlaç" = "Medicine";
+"Giyim" = "Clothing";
+"Eğlence" = "Entertainment";
+"Diğer" = "Other";
+"Bütçe Adı" = "Butget name";
+"Finansal hedeflerinize ulaşmanın\nen kolay yolu" = "The easiest way to achieve your financial goals";
+"Bütçem" = "MyBudget";
+"Bu özellik Premium üyelere özeldir" = "This feature is exclusive to Premium members";
+"Gelişmiş Analiz" = "Advanced Analysis";
+"Premium'a Yükseltin" = "Upgrade to Premium";
+"Tüm özelliklere erişin ve finansal hedeflerinize daha hızlı ulaşın" = "Access all features and reach your financial goals faster";
+"Detaylı grafik ve analizlerle finansal durumunuzu daha iyi anlayın" = "Understand your financial situation better with detailed charts and analyses";
+"Kategori bazlı limitler ve otomatik önerilerle bütçenizi kontrol altında tutun" = "Keep your budget under control with category-based limits and automatic suggestions";
+"Fatura ve ödemeleri asla kaçırmayın" = "Never miss bills and payments";
+"Düzenli ödemelerinizi otomatik olarak takip edin" = "Automatically track your recurring payments";
+"Harcamalarınızın pdf ve excel formatında çıktısın alabilirsiniz" = "You can export your expenses in PDF and Excel formats";
+"Aylık Premium" = "Monthly Premium";
+"Gelişmiş analitik" = "Advanced analytics";
+"Bütçe planlama" = "Budget planning";
+"Bütçe Planlama" = "Budget planning";
+"Fatura hatırlatıcıları" = "Bill reminders";
+"Tekrarlayan işlemler" = "Recurring transactions";
+"Çıktılar" = "Exports";
+"Yıllık Premium" = "Annual Premium";
+"Tüm aylık özellikleri" = "All monthly features";
+"2 ay bedava" = "2 months free";
+"yıllık" = "yearly";
+"Tüm Premium özellikleri" = "All Premium features";
+"Aile/grup bütçesi" = "Family/group budget";
+"family-sharing ile bütün aileye ücretsiz erişim" = "Free access to the whole family with family sharing";
+"%@ işlem" = "%@ Transaction";
+"Ortalama Gelir" = "Average Income";
+"Ortalama Gider" = "Average Expense";
+"Ortalama Tasarruf" = "Average Savings";
+"Toplam Tasarruf" = "Total Savings";
+"Aylık Ortalama" = "Monthly Average";
+"Yıllık Projeksiyon" = "Annual Projection";
+"Gelecek Ay Tahminleri" = "Next Month Predictions";
+"İnternet bağlantınızı kontrol edip tekrar deneyin." = "Check your internet connection and try again.";
+"Güvenlik nedeniyle hesabınızı silmek için tekrar giriş yapmanız gerekiyor." = "For security reasons, you need to log in again to delete your account.";
+"Hesap silme işlemi başarısız oldu. Lütfen daha sonra tekrar deneyin." = "Account deletion failed. Please try again later.";
+"Şifrenizi Girin" = "Enter Your Password";
+"Güvenlik nedeniyle hesabınızı silmek için şifrenizi girmeniz gerekiyor." = "For security reasons, you need to enter your password to delete your account.";
+"Onayla" = "Confirm";
+"Hesabınız ve tüm verileriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?" = "Your account and all your data will be permanently deleted. This action cannot be undone. Do you want to proceed?";
+"Hesabı Sil" = "Delete Account";
+"Hesabınızı sildiğinizde tüm verileriniz kalıcı olarak silinecektir." = "When you delete your account, all your data will be permanently deleted.";
+"Tehlikeli Bölge" = "Danger Zone";

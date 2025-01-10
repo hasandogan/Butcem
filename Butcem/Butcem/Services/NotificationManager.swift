@@ -42,7 +42,7 @@ class NotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenter
     }
     
      func saveFCMToken(_ token: String) {
-        guard let userId = AuthManager.shared.currentUserId else { return }
+       let userId = KeychainManager.shared.getUserId()
         
         Task {
             do {
@@ -129,15 +129,6 @@ class NotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenter
                 targetComponents.minute = reminderComponents.minute
             }
             
-            print("📅 Planlanan Bildirim Detayları:")
-            print("Şu anki Tarih: \(now)")
-            print("Seçilen Saat: \(reminderComponents.hour ?? 0):\(reminderComponents.minute ?? 0)")
-            print("Hedef Bileşenler:")
-            print("- Yıl: \(targetComponents.year ?? 0)")
-            print("- Ay: \(targetComponents.month ?? 0)")
-            print("- Gün: \(targetComponents.day ?? 0)")
-            print("- Saat: \(targetComponents.hour ?? 0)")
-            print("- Dakika: \(targetComponents.minute ?? 0)")
             
             let trigger = UNCalendarNotificationTrigger(dateMatching: targetComponents, repeats: false)
             
@@ -211,14 +202,14 @@ class NotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenter
     func scheduleBudgetWarning(category: Category, spent: Double, limit: Double) {
         let content = UNMutableNotificationContent()
         content.title = "Bütçe Uyarısı"
-        content.body = "\(category.rawValue) kategorisinde bütçe limitine yaklaşıyorsunuz. Harcama: \(spent.currencyFormat()), Limit: \(limit.currencyFormat())"
+		content.body = "\(category.localizedName) kategorisinde bütçe limitine yaklaşıyorsunuz. Harcama: \(spent.currencyFormat()), Limit: \(limit.currencyFormat())"
         content.sound = .default
         
         // Hemen bildirim gönder
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         
         let request = UNNotificationRequest(
-            identifier: "budget_warning_\(category.rawValue)",
+			identifier: "budget_warning_\(category.localizedName)",
             content: content,
             trigger: trigger
         )
@@ -234,7 +225,7 @@ class NotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenter
     func scheduleBudgetOverspent(category: Category, spent: Double, limit: Double) {
         let content = UNMutableNotificationContent()
         content.title = "Bütçe Aşımı!"
-        content.body = "\(category.rawValue) kategorisinde bütçe limitini aştınız! Harcama: \(spent.currencyFormat()), Limit: \(limit.currencyFormat())"
+		content.body = "\(category.localizedName) kategorisinde bütçe limitini aştınız! Harcama: \(spent.currencyFormat()), Limit: \(limit.currencyFormat())"
         content.sound = .default
         
         // Hemen bildirim gönder
@@ -330,21 +321,10 @@ class NotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenter
         print("-------------------\n")
     }
     
-    func checkNotificationSettings() async {
-        let settings = await center.notificationSettings()
-        
-        print("📱 Bildirim Ayarları Durumu:")
-        print("Yetkilendirme: \(settings.authorizationStatus.rawValue)")
-        print("Bildirim İzni: \(settings.notificationCenterSetting.rawValue)")
-        print("Ses İzni: \(settings.soundSetting.rawValue)")
-        print("Rozet İzni: \(settings.badgeSetting.rawValue)")
-        print("Kilit Ekranı İzni: \(settings.lockScreenSetting.rawValue)")
-        print("Uyarı İzni: \(settings.alertSetting.rawValue)")
-    }
+ 
     
     func handleScheduledNotifications() {
-        guard let userId = AuthManager.shared.currentUserId else { return }
-        
+         let userId = AuthManager.shared.currentUserId
         // Firestore listener'ı ekle
         FirebaseService.shared.db.collection("notifications")
             .whereField("userId", isEqualTo: userId)
@@ -404,6 +384,32 @@ class NotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenter
                 print("❌ Bildirim gönderme hatası: \(error)")
             } else {
                 print("✅ Bildirim başarıyla gönderildi: \(title)")
+            }
+        }
+    }
+    
+    func scheduleRecurringTransactionNotification(for transaction: RecurringTransaction) {
+        guard let nextDate = transaction.nextProcessDate else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Otomatik İşlem"
+        content.body = "\(transaction.title) işlemi (\(transaction.amount.currencyFormat())) gerçekleştirildi."
+        content.sound = .default
+        
+        // Tarihi bileşenlerine ayır
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: nextDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        
+        let request = UNNotificationRequest(
+            identifier: "recurring-transaction-\(transaction.documentId)",
+            content: content,
+            trigger: trigger
+        )
+        
+        center.add(request) { error in
+            if let error = error {
+                print("❌ Tekrarlanan işlem bildirimi eklenemedi: \(error.localizedDescription)")
             }
         }
     }

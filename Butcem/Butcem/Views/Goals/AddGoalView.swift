@@ -6,7 +6,7 @@ struct AddGoalView: View {
     
     @State private var title = ""
     @State private var targetAmount: Double = 0
-    @State private var currentAmount: Double = 0
+	@State private var currentAmount: Double = 0
     @State private var selectedCategory: GoalCategory = .savings
     @State private var selectedType: GoalType = .shortTerm
     @State private var deadline = Date()
@@ -20,40 +20,44 @@ struct AddGoalView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Hedef Detayları")) {
-                    TextField("Hedef Başlığı", text: $title)
+				Section(header: Text("Hedef Detayları".localized)) {
+					TextField("Hedef Başlığı".localized, text: $title)
                     
-                    HStack {
-                        Text("")
-                        TextField("Hedef Tutar", value: $targetAmount, format: .number)
-                            .keyboardType(.decimalPad)
-                    }
-                    
-                    HStack {
-                        Text("")
-                        TextField("Mevcut Birikim", value: $currentAmount, format: .number)
-                            .keyboardType(.decimalPad)
-                    }
+					HStack {
+						TextField("Hedef Tutar".localized, text: Binding(
+							get: { targetAmount == 0 ? "" : String(targetAmount) },
+							set: { targetAmount = Double($0) ?? 0 }
+						))
+						.keyboardType(.decimalPad)
+					}
+
+					HStack {
+						TextField("Mevcut Birikim".localized, text: Binding(
+							get: { currentAmount == 0 ? "" : String(currentAmount) },
+							set: { currentAmount = Double($0) ?? 0 }
+						))
+						.keyboardType(.decimalPad)
+					}
                 }
                 
-                Section(header: Text("Kategori ve Tip")) {
+				Section(header: Text("Kategori ve Tip".localized)) {
                     Picker("Kategori", selection: $selectedCategory) {
                         ForEach(GoalCategory.allCases, id: \.self) { category in
-                            Label(category.rawValue, systemImage: category.icon)
+							Label(category.localizedName, systemImage: category.icon)
                                 .tag(category)
                         }
                     }
                     
-                    Picker("Hedef Tipi", selection: $selectedType) {
+					Picker("Hedef Tipi".localized, selection: $selectedType) {
                         ForEach(GoalType.allCases, id: \.self) { type in
-                            Text(type.rawValue).tag(type)
+                            Text(type.localizedName).tag(type)
                         }
                     }
                 }
                 
-                Section(header: Text("Tarih")) {
+				Section(header: Text("Tarih".localized)) {
                     DatePicker(
-                        "Hedef Tarihi",
+						"Hedef Tarihi".localized,
                         selection: $deadline,
                         in: Date()...,
                         displayedComponents: .date
@@ -66,9 +70,9 @@ struct AddGoalView: View {
                 }
                 
                 if let monthlyTarget = calculateMonthlyTarget() {
-                    Section(header: Text("Aylık Hedef")) {
+					Section(header: Text("Aylık Hedef".localized)) {
                         HStack {
-                            Text("Aylık Birikim Hedefi")
+							Text("Aylık Birikim Hedefi".localized)
                             Spacer()
                             Text(monthlyTarget.currencyFormat())
                                 .foregroundColor(.secondary)
@@ -76,26 +80,26 @@ struct AddGoalView: View {
                     }
                 }
             }
-            .navigationTitle("Yeni Hedef")
+			.navigationTitle("Yeni Hedef".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
+					Button("İptal".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kaydet") {
+					Button("Kaydet".localized) {
                         saveGoal()
                     }
                     .disabled(!isFormValid)
                 }
             }
-            .alert("Hata", isPresented: $showingError) {
-                Button("Tamam", role: .cancel) {}
+			.alert("Hata".localized, isPresented: $showingError) {
+				Button("Tamam".localized, role: .cancel) {}
             } message: {
-                Text("Lütfen tüm alanları doldurun")
+				Text("Lütfen tüm alanları doldurun".localized)
             }
         }
     }
@@ -133,7 +137,3 @@ struct AddGoalView: View {
         }
     }
 }
-
-#Preview {
-    AddGoalView(viewModel: FinancialGoalViewModel())
-} 

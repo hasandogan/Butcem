@@ -30,7 +30,7 @@ private struct BudgetSummarySection: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("Toplam Bütçe")
+				Text("Toplam Bütçe".localized)
                     .font(.headline)
                 Spacer()
                 Text(budget.amount.currencyFormat())
@@ -43,7 +43,7 @@ private struct BudgetSummarySection: View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Harcanan")
+					Text("Harcanan".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(budget.spentAmount.currencyFormat())
@@ -77,7 +77,7 @@ private struct CategoryDistributionSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Kategori Dağılımı")
+			Text("Kategori Dağılımı".localized)
                 .font(.headline)
             
             Chart {
@@ -119,7 +119,7 @@ private struct CategoryDetailsSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Kategori Detayları")
+			Text("Kategori Detayları".localized)
                 .font(.headline)
             
             ForEach(categoryLimits) { limit in

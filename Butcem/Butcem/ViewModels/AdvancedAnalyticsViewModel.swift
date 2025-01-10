@@ -24,7 +24,7 @@ struct CategoryPrediction: Identifiable {
 class AdvancedAnalyticsViewModel: ObservableObject {
     @Published private(set) var monthlyTrends: [MonthlyTrend] = []
     @Published private(set) var categoryComparisons: [CategoryComparison] = []
-    @Published private(set) var categoryPredictions: [CategoryPrediction] = []
+    @Published var categoryPredictions: [CategoryPrediction] = []
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
     @Published private(set) var savingsGoal: Double = 1000 // Örnek değer
@@ -123,22 +123,113 @@ class AdvancedAnalyticsViewModel: ObservableObject {
             )
         }
         
-        // Kategori tahminlerini hesapla (basit bir tahmin)
-        categoryPredictions = Category.allCases.map { category in
-            let amounts = transactions
-                .filter { $0.category == category }
-                .map { $0.amount }
-            
-            let average = amounts.reduce(0, +) / Double(max(amounts.count, 1))
-            
-            return CategoryPrediction(
-                category: category,
-                predictedAmount: average * 1.1,
-                confidence: 0.8
-            )
-        }
+        // Kategori tahminlerini hesapla
+        categoryPredictions = await calculateCategoryPredictions(from: transactions)
         
         updateSavingsAnalysis(transactions)
+    }
+    
+    private func calculateCategoryPredictions(from transactions: [Transaction]) async -> [CategoryPrediction] {
+        await withTaskGroup(of: CategoryPrediction.self) { group in
+            for category in Category.allCases {
+                group.addTask {
+                    let categoryTransactions = transactions.filter { $0.category == category }
+                    let amounts = categoryTransactions.map { $0.amount }
+                    
+                    // Ortalama hesapla
+                    let average = amounts.reduce(0, +) / Double(max(amounts.count, 1))
+                    
+                    // Güven skorunu hesapla
+                    let confidence: Double
+                    if amounts.isEmpty {
+                        confidence = 0.5 // Hiç işlem yoksa düşük güven
+                    } else {
+                        // Son 3 ayın işlem sayılarını hesapla
+                        let calendar = Calendar.current
+                        let currentDate = Date()
+                        
+                        let monthlyTransactionCounts = (0..<3).map { monthsAgo -> Int in
+                            let startOfMonth = calendar.date(byAdding: .month, value: -monthsAgo, to: currentDate)?.startOfMonth() ?? Date()
+                            let endOfMonth = calendar.date(byAdding: .month, value: 1, to: startOfMonth)?.startOfMonth() ?? Date()
+                            
+                            return categoryTransactions.filter {
+                                $0.date >= startOfMonth && $0.date < endOfMonth
+                            }.count
+                        }
+                        
+                        // İşlem sayısı tutarlılığını kontrol et
+                        let transactionCountConsistency: Double
+                        if monthlyTransactionCounts.count >= 2 {
+                            let differences = zip(monthlyTransactionCounts, monthlyTransactionCounts.dropFirst())
+                                .map { abs($0 - $1) }
+                            let avgDifference = Double(differences.reduce(0, +)) / Double(differences.count)
+                            
+                            // Eğer fark artıyorsa güven düşer
+                            transactionCountConsistency = 1.0 - min(avgDifference / 5.0, 0.5)
+                        } else {
+                            transactionCountConsistency = 0.5
+                        }
+                        
+                        // Bütçe limit kontrolü
+                        let budgetLimitScore: Double
+                        if let currentBudget = try? await FirebaseService.shared.getCurrentBudget(),
+                           let categoryBudget = currentBudget.categoryLimits.first(where: { $0.category == category }) {
+                            let spentRatio = categoryBudget.spent / categoryBudget.limit
+                            
+                            if spentRatio > 1.0 { // Limit aşılmış
+                                budgetLimitScore = 0.3
+                            } else if spentRatio > 0.9 { // Limite yaklaşılmış
+                                budgetLimitScore = 0.6
+                            } else {
+                                budgetLimitScore = 1.0
+                            }
+                        } else {
+                            budgetLimitScore = 0.7 // Bütçe limiti yoksa orta güven
+                        }
+                        
+                        // İşlem sıklığı skoru
+                        let frequencyScore: Double
+                        let monthlyAverage = Double(monthlyTransactionCounts[0])
+                        if monthlyAverage > 8 { // Yüksek sıklık
+                            frequencyScore = 0.9
+                        } else if monthlyAverage > 5 {
+                            frequencyScore = 0.7
+                        } else if monthlyAverage > 3 {
+                            frequencyScore = 0.5
+                        } else {
+                            frequencyScore = 0.3
+                        }
+                        
+                        // Son aydaki işlem sayısı önceki aylara göre çok farklıysa güveni düşür
+                        let lastMonthVariance = abs(Double(monthlyTransactionCounts[0]) -
+                                                  Double(monthlyTransactionCounts.dropFirst().reduce(0, +)) /
+                                                  Double(max(monthlyTransactionCounts.count - 1, 1)))
+                        
+                        let stabilityScore = 1.0 - min(lastMonthVariance / 5.0, 0.5)
+                        
+                        // Tüm faktörleri birleştir
+                        confidence = min((
+                            transactionCountConsistency * 0.3 + // İşlem sayısı tutarlılığı
+                            budgetLimitScore * 0.3 +           // Bütçe limit durumu
+                            frequencyScore * 0.2 +             // İşlem sıklığı
+                            stabilityScore * 0.2               // Son ay stabilitesi
+                        ), 1.0)
+                    }
+                    
+                    return CategoryPrediction(
+                        category: category,
+                        predictedAmount: average * 1.1,
+                        confidence: confidence
+                    )
+                }
+            }
+            
+            var predictions: [CategoryPrediction] = []
+            for await prediction in group {
+                predictions.append(prediction)
+            }
+            return predictions.sorted { $0.category.rawValue < $1.category.rawValue }
+        }
     }
     
     private func updateSavingsAnalysis(_ transactions: [Transaction]) {
@@ -190,7 +281,7 @@ class AdvancedAnalyticsViewModel: ObservableObject {
         case .eglence:
             return "Eğlence harcamalarınızı ücretsiz etkinliklerle dengeleyebilirsiniz"
         default:
-            return "\(category.rawValue) kategorisindeki harcamalarınızı gözden geçirin"
+			return "\(category.localizedName) kategorisindeki harcamalarınızı gözden geçirin"
         }
     }
 } 

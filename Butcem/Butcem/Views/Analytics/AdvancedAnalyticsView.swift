@@ -25,10 +25,10 @@ struct AdvancedAnalyticsView: View {
                 .padding()
             } else {
                 VStack(spacing: 20) {
-                    Text("Bu özellik Premium üyelere özeldir")
+					Text("Bu özellik Premium üyelere özeldir".localized)
                         .font(.headline)
                     
-                    Button("Premium'a Yükselt") {
+					Button("Premium'a Yükselt".localized) {
                         showingPremium = true
                     }
                     .buttonStyle(.borderedProminent)
@@ -39,13 +39,7 @@ struct AdvancedAnalyticsView: View {
         .sheet(isPresented: $showingPremium) {
             PremiumView()
         }
-        .onAppear {
-            print("Advanced Analytics View Appeared")
-            print("Can Access: \(subscriptionManager.canAccessAdvancedAnalytics)")
-            print("Current Tier: \(subscriptionManager.currentTier)")
-            print("Purchased Products: \(subscriptionManager.storeManager.purchasedProductIDs)")
-        }
-        .navigationTitle("Gelişmiş Analiz")
+		.navigationTitle("Gelişmiş Analiz".localized)
     }
 }
 
@@ -55,19 +49,19 @@ struct TrendAnalysisCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Harcama Trendi")
+			Text("Harcama Trendi".localized)
                 .font(.headline)
             
             Chart(viewModel.monthlyTrends) { trend in
                 LineMark(
-                    x: .value("Ay", trend.month),
-                    y: .value("Tutar", trend.amount)
+					x: .value("Ay".localized, trend.month),
+					y: .value("Tutar".localized, trend.amount)
                 )
                 .foregroundStyle(Color.accentColor)
                 
                 AreaMark(
-                    x: .value("Ay", trend.month),
-                    y: .value("Tutar", trend.amount)
+					x: .value("Ay".localized, trend.month),
+					y: .value("Tutar".localized, trend.amount)
                 )
                 .foregroundStyle(
                     .linearGradient(
@@ -82,7 +76,7 @@ struct TrendAnalysisCard: View {
             // Trend Özeti
             HStack {
                 TrendStatView(
-                    title: "Aylık Ortalama",
+					title: "Aylık Ortalama".localized,
                     value: viewModel.averageSpending,
                     trend: viewModel.spendingTrend
                 )
@@ -90,7 +84,7 @@ struct TrendAnalysisCard: View {
                 Divider()
                 
                 TrendStatView(
-                    title: "En Yüksek Ay",
+					title: "En Yüksek Ay".localized,
                     value: viewModel.highestSpending,
                     subtitle: viewModel.highestSpendingMonth
                 )
@@ -108,19 +102,19 @@ struct CategoryComparisonCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Kategori Karşılaştırması")
+			Text("Kategori Karşılaştırması".localized)
                 .font(.headline)
             
             Chart(viewModel.categoryComparisons) { comparison in
                 BarMark(
-                    x: .value("Kategori", comparison.category.rawValue),
-                    y: .value("Tutar", comparison.currentAmount)
+					x: .value("Kategori".localized, comparison.category.rawValue),
+					y: .value("Tutar".localized, comparison.currentAmount)
                 )
                 .foregroundStyle(Color.accentColor)
                 
                 BarMark(
-                    x: .value("Kategori", comparison.category.rawValue),
-                    y: .value("Tutar", comparison.previousAmount)
+					x: .value("Kategori".localized, comparison.category.rawValue),
+					y: .value("Tutar".localized, comparison.previousAmount)
                 )
                 .foregroundStyle(Color.gray.opacity(0.3))
             }
@@ -147,18 +141,18 @@ struct MonthlyPredictionCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Gelecek Ay Tahmini")
+			Text("Gelecek Ay Tahmini".localized)
                 .font(.headline)
             
             HStack(spacing: 20) {
                 PredictionStatView(
-                    title: "Tahmini Harcama",
+					title: "Tahmini Harcama".localized,
                     value: viewModel.predictedSpending,
                     trend: viewModel.predictedTrend
                 )
                 
                 PredictionStatView(
-                    title: "Tahmini Tasarruf",
+					title: "Tahmini Tasarruf".localized,
                     value: viewModel.predictedSaving,
                     trend: viewModel.savingTrend
                 )
@@ -183,16 +177,16 @@ struct SavingsAnalysisCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Tasarruf Analizi")
+			Text("Tasarruf Analizi".localized)
                 .font(.headline)
             
             // Tasarruf Hedefi İlerleme
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Aylık Tasarruf Hedefi")
+					Text("Aylık Tasarruf Hedefi".localized)
                         .font(.subheadline)
                     Spacer()
-                    Text(viewModel.savingsGoal.formatted(.currency(code: "TRY")))
+                    Text(viewModel.savingsGoal.currencyFormat())
                         .font(.headline)
                 }
                 
@@ -206,7 +200,7 @@ struct SavingsAnalysisCard: View {
             
             // Tasarruf Önerileri
             VStack(alignment: .leading, spacing: 10) {
-                Text("Tasarruf Önerileri")
+				Text("Tasarruf Önerileri".localized)
                     .font(.subheadline)
                     .fontWeight(.medium)
                 
@@ -239,7 +233,7 @@ struct CategoryPredictionRow: View {
                     .foregroundColor(.accentColor)
                     .frame(width: 24)
                 
-                Text(prediction.category.rawValue)
+				Text(prediction.category.localizedName)
                     .font(.subheadline)
             }
             
@@ -247,13 +241,13 @@ struct CategoryPredictionRow: View {
             
             // Tahmin ve Güven Oranı
             VStack(alignment: .trailing, spacing: 4) {
-                Text(prediction.predictedAmount.formatted(.currency(code: "TRY")))
+                Text(prediction.predictedAmount.currencyFormat())
                     .font(.subheadline)
                     .fontWeight(.medium)
                 
                 // Güven Oranı Göstergesi
                 HStack(spacing: 4) {
-                    Text("Güven:")
+					Text("Güven:".localized)
                         .font(.caption2)
                         .foregroundColor(.secondary)
                     
@@ -295,7 +289,7 @@ struct TrendStatView: View {
                 .foregroundColor(.secondary)
             
             HStack(alignment: .firstTextBaseline) {
-                Text(value.formatted(.currency(code: "TRY")))
+				Text(value.currencyFormat())
                     .font(.headline)
                 
                 if let trend = trend {
@@ -322,7 +316,7 @@ struct CategoryChangeView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(comparison.category.rawValue)
+			Text(comparison.category.localizedName)
                 .font(.subheadline)
             
             HStack {
@@ -360,7 +354,7 @@ struct PredictionStatView: View {
                 .foregroundColor(.secondary)
             
             HStack(alignment: .firstTextBaseline) {
-                Text(value.formatted(.currency(code: "TRY")))
+                Text(value.currencyFormat())
                     .font(.headline)
                 
                 if let trend = trend {

@@ -5,13 +5,13 @@ struct CategoryPieChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Kategori Dağılımı")
+			Text("Kategori Dağılımı".localized)
                 .font(.headline)
             
             // Kategori listesi
             ForEach(data, id: \.category) { item in
                 HStack {
-                    Label(item.category.rawValue, systemImage: item.category.icon)
+					Label(item.category.localizedName, systemImage: item.category.icon)
                     Spacer()
                     Text(item.amount.currencyFormat())
                     Text("(\(Int(item.percentage))%)")

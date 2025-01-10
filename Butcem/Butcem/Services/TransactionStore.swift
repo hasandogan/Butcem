@@ -2,6 +2,7 @@ import SwiftUI
 import Foundation
 import Combine
 import FirebaseFirestore
+import FirebaseAuth
 
 protocol TransactionStoreProtocol {
     var transactions: [Transaction] { get }
@@ -30,13 +31,42 @@ class TransactionStore: ObservableObject, TransactionStoreProtocol {
     }
     
     func refresh() async {
+		 let userId = AuthManager.shared.currentUserId
+        
         do {
-            let transactions = try await FirebaseService.shared.getTransactions()
-            await MainActor.run {
-                update(with: transactions)
+            // Normal işlemleri al
+            let snapshot = try await FirebaseService.shared.db.collection("transactions")
+                .whereField("userId", isEqualTo: userId)
+                .order(by: "date", descending: true)
+                .getDocuments()
+            
+            let transactions = snapshot.documents.compactMap { document -> Transaction? in
+                var transaction = try? document.data(as: Transaction.self)
+                transaction?.id = document.documentID
+                return transaction
             }
+            
+            // Tekrarlanan işlemleri al
+            let recurringSnapshot = try await FirebaseService.shared.db.collection("recurring_transactions")
+                .whereField("userId", isEqualTo: userId)
+                .getDocuments()
+            
+            let recurringTransactions = recurringSnapshot.documents.compactMap { document -> RecurringTransaction? in
+                var transaction = try? document.data(as: RecurringTransaction.self)
+                transaction?.id = document.documentID
+                return transaction
+            }
+            
+            await MainActor.run {
+                self.transactions = transactions
+                self.recurringTransactions = recurringTransactions
+            }
+            
+            // Tekrarlanan işlemleri işle
+            try await FirebaseService.shared.processRecurringTransactions()
+            
         } catch {
-            print("Failed to refresh transactions: \(error)")
+            print("❌ TransactionStore refresh hatası: \(error.localizedDescription)")
         }
     }
     
@@ -66,6 +96,10 @@ class TransactionStore: ObservableObject, TransactionStoreProtocol {
             result[category] = getExpensesForCategory(category)
         }
         return result
+    }
+    
+    func updateRecurringTransactions(_ transactions: [RecurringTransaction]) {
+        self.recurringTransactions = transactions.sorted { $0.startDate > $1.startDate }
     }
 }
 

@@ -6,7 +6,8 @@ struct TransactionsView: View {
 	@State private var showingFilter = false
 	@State private var selectedType: TransactionType?
 	@State private var selectedCategory: Category?
-	
+	@State private var showingScanner = false
+
 	var sortedTransactions: [Transaction] {
 		viewModel.filteredTransactions.sorted { $0.date > $1.date }
 	}
@@ -29,7 +30,7 @@ struct TransactionsView: View {
 									try? await viewModel.deleteTransaction(transaction)
 								}
 							} label: {
-								Label("Sil", systemImage: "trash")
+								Label("Sil".localized, systemImage: "trash")
 							}
 						}
 					}
@@ -37,7 +38,7 @@ struct TransactionsView: View {
 				.listStyle(.plain)
 			}
 		}
-		.navigationTitle("İşlemler")
+		.navigationTitle("İşlemler".localized)
 		.toolbar {
 			ToolbarItem(placement: .navigationBarTrailing) {
 				Menu {
@@ -47,32 +48,32 @@ struct TransactionsView: View {
 						selectedCategory = nil
 						viewModel.filterTransactions(type: nil, category: nil)
 					} label: {
-						Label("Tümü", systemImage: "list.bullet")
+						Label("Tümü".localized, systemImage: "list.bullet")
 					}
 					
-					Menu("İşlem Tipi") {
+					Menu("İşlem Tipi".localized) {
 						ForEach(TransactionType.allCases, id: \.self) { type in
 							Button {
 								selectedType = type
 								viewModel.filterTransactions(type: type, category: selectedCategory)
 							} label: {
-								Label(type.rawValue, systemImage: type == .income ? "plus.circle" : "minus.circle")
+								Label(type.localizedName, systemImage: type == .income ? "plus.circle" : "minus.circle")
 							}
 						}
 					}
 					
-					Menu("Kategori") {
+					Menu("Kategori".localized) {
 						ForEach(Category.allCases, id: \.self) { category in
 							Button {
 								selectedCategory = category
 								viewModel.filterTransactions(type: selectedType, category: category)
 							} label: {
-								Label(category.rawValue, systemImage: category.icon)
+								Label(category.localizedName, systemImage: category.icon)
 							}
 						}
 					}
 				} label: {
-					Label("Filtrele", systemImage: "line.3.horizontal.decrease.circle")
+					Label("Filtrele".localized, systemImage: "line.3.horizontal.decrease.circle")
 				}
 			}
 		}
@@ -89,7 +90,7 @@ struct EmptyTransactionsView: View {
 			Image(systemName: "tray")
 				.font(.system(size: 40))
 				.foregroundColor(.secondary)
-			Text("İşlem bulunamadı")
+			Text("İşlem bulunamadı".localized)
 				.foregroundColor(.secondary)
 		}
 		.frame(maxWidth: .infinity)

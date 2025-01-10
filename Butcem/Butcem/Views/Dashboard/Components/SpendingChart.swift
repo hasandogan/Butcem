@@ -6,17 +6,17 @@ struct SpendingChart: View {
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
-			Text("Harcama Dağılımı")
+			Text("Harcama Dağılımı".localized)
 				.font(.headline)
 			
 			Chart {
 				ForEach(viewModel.categorySpending, id: \.category) { spending in
 					SectorMark(
-						angle: .value("Harcama", spending.amount),
+						angle: .value("Harcama".localized, spending.amount),
 						innerRadius: .ratio(0.618),
 						angularInset: 1.5
 					)
-					.foregroundStyle(by: .value("Kategori", spending.category.rawValue))
+					.foregroundStyle(by: .value("Kategori".localized, spending.category.localizedName))
 					.annotation(position: .overlay) {
 						Text("%\(Int(spending.percentage))")
 							.font(.caption)
@@ -33,7 +33,7 @@ struct SpendingChart: View {
 						Circle()
 							.fill(spending.category.color)
 							.frame(width: 8, height: 8)
-						Text(spending.category.rawValue)
+						Text(spending.category.localizedName)
 						Spacer()
 						Text("%\(Int(spending.percentage))")
 							.foregroundColor(.secondary)

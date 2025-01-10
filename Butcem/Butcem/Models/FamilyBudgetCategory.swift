@@ -53,6 +53,29 @@ enum FamilyBudgetCategory: String, CaseIterable, Codable {
         case .diger: return "ellipsis.circle.fill"
         }
     }
+	
+	var localizedName: String {
+		switch self {
+		case .kira: return "Kira".localized
+		case .aidat: return "Aidat".localized
+		case .elektrik: return "Elektirik".localized
+		case .su: return "Su".localized
+		case .dogalgaz: return "Doğal Gaz".localized
+		case .internet: return "İnternet".localized
+		case .market: return "Market".localized
+		case .gida: return "Gıda".localized
+		case .yakit: return "Yakıt".localized
+		case .topluTasima: return "Toplu Taşıma".localized
+		case .okul: return "Okul".localized
+		case .kurs: return "Kurs".localized
+		case .kitap: return "Kitap".localized
+		case .saglik: return "Sağlık".localized
+		case .ilac: return "İlaç".localized
+		case .giyim: return "Giyim".localized
+		case .eglence: return "Eğlence".localized
+		case .diger: return "Diğer".localized
+		}
+	}
     
     var color: Color {
         switch self {

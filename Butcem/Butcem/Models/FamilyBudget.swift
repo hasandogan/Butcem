@@ -11,15 +11,33 @@ struct FamilyBudget: Identifiable, Codable {
     let createdAt: Date?
     var month: Date
     var spentAmount: Double
+    let sharingCode: String
     
     var documentId: String {
         id ?? UUID().uuidString
     }
     
+    init(creatorId: String, name: String, members: [FamilyMember], categoryLimits: [FamilyCategoryBudget], totalBudget: Double, createdAt: Date?, month: Date, spentAmount: Double) {
+        self.creatorId = creatorId
+        self.name = name
+        self.members = members
+        self.categoryLimits = categoryLimits
+        self.totalBudget = totalBudget
+        self.createdAt = createdAt
+        self.month = month
+        self.spentAmount = spentAmount
+        self.sharingCode = FamilyBudget.generateSharingCode()
+    }
+    
+    static func generateSharingCode() -> String {
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        let randomString = String((0..<6).map { _ in letters.randomElement()! })
+        return randomString
+    }
+    
     struct FamilyMember: Identifiable, Codable {
         let id: String
         var name: String
-        let email: String
         let role: MemberRole
         var spentAmount: Double
         
@@ -27,7 +45,6 @@ struct FamilyBudget: Identifiable, Codable {
             [
                 "id": id,
                 "name": name,
-                "email": email,
                 "role": role.rawValue,
                 "spentAmount": spentAmount
             ]
@@ -45,6 +62,7 @@ struct FamilyBudget: Identifiable, Codable {
         case createdAt
         case month
         case spentAmount
+        case sharingCode
     }
     
     // Firestore'a kaydetmek için Dictionary'e çevir
@@ -56,7 +74,8 @@ struct FamilyBudget: Identifiable, Codable {
             "spentAmount": spentAmount,
             "month": month,
             "members": members.map { $0.asDictionary() },
-            "categoryLimits": categoryLimits.map { $0.asDictionary() }
+            "categoryLimits": categoryLimits.map { $0.asDictionary() },
+            "sharingCode": sharingCode
         ]
         
         if let id = id {
@@ -97,6 +116,13 @@ extension FamilyBudget {
         }
         
         spentAmount = try container.decode(Double.self, forKey: .spentAmount)
+        
+        // Paylaşım kodunu decode et veya yeni oluştur
+        if let code = try container.decodeIfPresent(String.self, forKey: .sharingCode) {
+            sharingCode = code
+        } else {
+            sharingCode = FamilyBudget.generateSharingCode()
+        }
     }
 }
 

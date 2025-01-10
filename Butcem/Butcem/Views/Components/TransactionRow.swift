@@ -14,7 +14,7 @@ struct TransactionRow: View {
             
             // Orta Kısım
             VStack(alignment: .leading, spacing: 2) {
-                Text(transaction.category.rawValue)
+				Text(transaction.category.localizedName)
                     .font(.subheadline)
                     .fontWeight(.medium)
                 if let note = transaction.note {

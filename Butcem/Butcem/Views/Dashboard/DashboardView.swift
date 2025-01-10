@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -20,16 +20,17 @@ struct DashboardView: View {
                 SpendingChart(viewModel: viewModel)
                 RecentTransactionsCard(viewModel: viewModel)
             }
+
             .padding()
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Ana Sayfa")
+        .navigationTitle("Ana Sayfa".localized)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.refreshData()
         }
-        .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("Tamam") {
+        .alert("Hata".localized, isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("Tamam".localized) {
                 viewModel.errorMessage = nil
             }
         } message: {

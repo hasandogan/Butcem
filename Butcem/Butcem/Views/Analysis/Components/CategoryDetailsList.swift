@@ -5,7 +5,7 @@ struct CategoryDetailsList: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Kategori Detayları")
+			Text("Kategori Detayları".localized)
                 .font(.headline)
             
             ForEach(categories, id: \.category) { spending in

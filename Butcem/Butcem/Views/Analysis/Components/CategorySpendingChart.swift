@@ -6,16 +6,16 @@ struct CategorySpendingChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Kategori Dağılımı")
+			Text("Kategori Dağılımı".localized)
                 .font(.headline)
             
             Chart {
                 ForEach(spending, id: \.category) { item in
                     BarMark(
-                        x: .value("Kategori", item.category.rawValue),
-                        y: .value("Tutar", item.amount)
+						x: .value("Kategori".localized, item.category.localizedName),
+						y: .value("Tutar".localized, item.amount)
                     )
-                    .foregroundStyle(by: .value("Kategori", item.category.rawValue))
+					.foregroundStyle(by: .value("Kategori".localized, item.category.localizedName))
                 }
             }
             .frame(height: 200)

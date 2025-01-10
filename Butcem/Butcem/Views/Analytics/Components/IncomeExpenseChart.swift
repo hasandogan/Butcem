@@ -6,20 +6,20 @@ struct IncomeExpenseChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Gelir/Gider Analizi")
+			Text("Gelir/Gider Analizi".localized)
                 .font(.headline)
             
             Chart {
                 ForEach(data, id: \.date) { item in
                     BarMark(
-                        x: .value("Tarih", item.date),
-                        y: .value("Gelir", item.income)
+						x: .value("Tarih".localized, item.date),
+						y: .value("Gelir".localized, item.income)
                     )
                     .foregroundStyle(.green)
                     
                     BarMark(
-                        x: .value("Tarih", item.date),
-                        y: .value("Gider", item.expense)
+						x: .value("Tarih".localized, item.date),
+						y: .value("Gider".localized, item.expense)
                     )
                     .foregroundStyle(.red)
                 }
@@ -28,10 +28,10 @@ struct IncomeExpenseChart: View {
             
             // Açıklama
             HStack {
-                Label("Gelir", systemImage: "circle.fill")
+				Label("Gelir".localized, systemImage: "circle.fill")
                     .foregroundColor(.green)
                 Spacer()
-                Label("Gider", systemImage: "circle.fill")
+				Label("Gider".localized, systemImage: "circle.fill")
                     .foregroundColor(.red)
             }
             .font(.caption)

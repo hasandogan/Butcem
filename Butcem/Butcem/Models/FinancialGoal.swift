@@ -74,6 +74,13 @@ enum GoalType: String, Codable, CaseIterable {
         case .longTerm: return 60
         }
     }
+	var localizedName: String {
+		switch self {
+		case .shortTerm: return "Kısa Vadeli".localized
+		case .mediumTerm: return "Orta Vadeli".localized
+		case .longTerm: return "Uzun Vadeli".localized
+		}
+	}
 }
 
 enum GoalCategory: String, Codable, CaseIterable {
@@ -100,4 +107,17 @@ enum GoalCategory: String, Codable, CaseIterable {
         case .other: return "star"
         }
     }
-} 
+	var localizedName: String {
+		switch self {
+		case .savings: return "Tasarruf".localized
+		case .investment: return "Yatırım".localized
+		case .debt: return "Borç Ödeme".localized
+		case .purchase: return "Satın Alma".localized
+		case .emergency: return "Acil Durum Fonu".localized
+		case .education: return "Eğitim".localized
+		case .retirement: return "Emeklilik".localized
+		case .travel: return "Seyahat".localized
+		case .other: return "Diğer".localized
+		}
+	}
+}
